@@ -1,0 +1,14 @@
+services:
+  fish-party:
+    build: { context: .., dockerfile: deploy/Dockerfile }
+    container_name: fish-party
+    restart: unless-stopped
+    env_file: fish-party.env          # ADMIN_PASSWORD=...  (chmod 600, never commit)
+    environment:
+      MEMPOOL_API: https://mempool.space
+    volumes:
+      - ./data:/data
+    ports:
+      - "127.0.0.1:8001:8001"         # party tank
+      - "127.0.0.1:8002:8002"         # shared tank
+    mem_limit: 768m

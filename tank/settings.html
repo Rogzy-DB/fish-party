@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Settings — Fish Party</title>
+<link rel="stylesheet" href="static/ui.css">
+<style>
+  /* A control page (not the art surface): full ui.css chrome + tokens,
+     with the aquarium's deep-water palette overriding the neutral primitives so
+     the remote feels like it belongs to the tank it steers. */
+  :root {
+    color-scheme: dark;
+    --paper: #041020;
+    --card: #0a2038;
+    --line: #1d3a5c;
+    --ink: #dfe9f5;
+    --faint: #8fb0cc;
+    --accent: #2a8fe0;
+  }
+  * { -webkit-tap-highlight-color: transparent; }
+  body {
+    font: 16px/1.5 system-ui, sans-serif; color: var(--ink);
+    background: linear-gradient(#06182e, var(--paper) 70%, #020a14) fixed;
+    min-height: 100vh;
+  }
+  .sub { color: var(--faint); font-size: var(--fs-1, .9rem); margin: -6px 0 var(--sp-4, 18px); }
+
+  section { margin-bottom: var(--sp-6, 32px); }
+  section > h2 {
+    font-size: var(--fs-2, 1rem); font-weight: 700; margin-bottom: var(--sp-3, 12px);
+    display: flex; align-items: baseline; gap: 8px;
+  }
+  section > h2 .hint { font-weight: 400; color: var(--faint); font-size: .8rem; }
+
+  /* segmented size control — ui.css .chip, selected via aria-pressed */
+  .seg { display: flex; gap: var(--sp-2, 8px); flex-wrap: wrap; }
+  .seg .chip { flex: 1 1 auto; justify-content: center; min-width: 54px; }
+  .chip[aria-pressed="true"] {
+    background: var(--accent); border-color: var(--accent); color: #041020; font-weight: 700;
+  }
+
+  /* sound row */
+  .soundrow { display: flex; align-items: center; gap: var(--sp-3, 12px); flex-wrap: wrap; }
+  .vol { flex: 1 1 220px; display: flex; align-items: center; gap: 10px; min-width: 200px; }
+  input[type=range] { flex: 1; accent-color: var(--accent); height: 40px; touch-action: manipulation; }
+  .volpct { color: var(--faint); font-size: .85rem; width: 3ch; text-align: right; }
+
+  /* fish management */
+  .fishbar { display: flex; align-items: center; gap: var(--sp-3, 12px); flex-wrap: wrap; margin-bottom: var(--sp-3, 12px); }
+  .fishbar .count { color: var(--faint); font-size: .9rem; margin-right: auto; }
+  .fishgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--sp-3, 12px); }
+  .fish {
+    display: flex; flex-direction: column; gap: 6px;
+    background: var(--card); border: 1.5px solid var(--line); border-radius: var(--radius, 14px);
+    padding: 10px; position: relative; transition: border-color .12s, opacity .12s;
+  }
+  .fish[data-swims="false"] { opacity: .55; }
+  .fish[data-swims="true"] { border-color: var(--accent); }
+  /* the thumbnail is the include/exclude toggle */
+  .fishtoggle {
+    display: block; width: 100%; aspect-ratio: 1; border: 0; padding: 0; cursor: pointer;
+    border-radius: 10px; overflow: hidden; position: relative;
+    background: radial-gradient(circle at 50% 40%, #0d2b48, #061524);
+  }
+  .fishtoggle:disabled { cursor: default; }
+  .fishtoggle img { width: 100%; height: 100%; object-fit: contain; }
+  .fish .badge {
+    position: absolute; top: 6px; right: 6px; font-size: .72rem; line-height: 1;
+    padding: 3px 7px; border-radius: 999px; background: #0a2038cc; border: 1px solid var(--line); color: var(--ink);
+  }
+  .fish[data-swims="true"] .badge { background: var(--accent); border-color: var(--accent); color: #041020; }
+  .fish .species { font-size: .72rem; color: var(--faint); }
+  .fish .meta { font-size: .7rem; color: var(--faint); }
+  .nameedit {
+    width: 100%; padding: 7px 9px; font: inherit; font-size: .82rem; color: var(--ink);
+    background: #061726; border: 1px solid var(--line); border-radius: 9px; min-height: 40px;
+  }
+  .nameedit::placeholder { color: #5f7c99; }
+  .nameedit:focus { outline: none; border-color: var(--accent); }
+
+  .foot { color: var(--faint); font-size: .78rem; text-align: center; margin-top: var(--sp-5, 24px); }
+</style>
+<script>
+  // home = your own party (everything open) · public = the shared tank (owner
+  // pages behind a password) · showcase = read-only. serve.py fills this in.
+  window.TANK_MODE = "TANK_MODE_PLACEHOLDER";
+  document.documentElement.dataset.mode = window.TANK_MODE;
+</script>
+<style>
+  [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
+  [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only { display: none !important; }
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <h1>⚙️ Settings</h1>
+    <a class="home" href="./" title="The tank">🐠</a>
+  </div>
+  <p class="sub">The remote for the projection: steer the wall from this phone.</p>
+
+  <nav id="tanknav"></nav>
+
+  <!-- ---------- Taille ---------- -->
+  <section>
+    <h2>Fish size <span class="hint">applied on the wall</span></h2>
+    <div class="seg" id="sizeSeg" role="group" aria-label="Fish size"></div>
+  </section>
+
+  <!-- ---------- Son ---------- -->
+  <section>
+    <h2>Sound <span class="hint">the projection's ambient loop</span></h2>
+    <div class="soundrow">
+      <button class="chip" id="soundToggle" aria-pressed="false">🔈 Sound off</button>
+      <label class="vol">Volume
+        <input type="range" id="vol" min="0" max="100" step="1" value="60" aria-label="Volume">
+        <span class="volpct" id="volpct">60%</span>
+      </label>
+    </div>
+  </section>
+
+  <!-- ---------- Poissons ---------- -->
+  <section>
+    <h2>Fish</h2>
+    <div class="fishbar">
+      <span class="count" id="fishCount">…</span>
+      <button class="btn ghost sm" id="showAll">Show all</button>
+      <button class="btn ghost sm" id="hideAll">Hide all</button>
+    </div>
+    <div class="fishgrid" id="fishGrid"></div>
+  </section>
+
+  <p class="foot" id="foot">Fish Party · settings</p>
+</div>
+
+<script src="static/js/tanknav.js"></script>
+<script>
+(() => {
+  "use strict";
+  const SIZE_ORDER = ["xs", "s", "m", "l", "xl"];
+  const SIZE_LABEL = { xs: "XS", s: "S", m: "M", l: "L", xl: "XL" };
+  const $ = (id) => document.getElementById(id);
+
+  let settings = { fishSize: "m", soundOn: false, volume: 0.6, hidden: [], presets: {} };
+  let catalog = [];
+  let volTimer = null;
+
+  async function api(method, path, body) {
+    const opt = { method, cache: "no-store" };
+    if (body !== undefined) { opt.headers = { "Content-Type": "application/json" }; opt.body = JSON.stringify(body); }
+    const r = await fetch(path, opt);
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || (method + " " + path + " -> " + r.status));
+    return j;
+  }
+
+  // POST a settings patch; the response is authoritative -> sync + re-render.
+  async function patch(body) {
+    try {
+      const j = await api("POST", "api/settings", body);
+      settings = { fishSize: j.fishSize, soundOn: j.soundOn, volume: j.volume,
+                   hidden: j.hidden, presets: j.presets };
+      renderAll();
+    } catch (e) {
+      $("foot").textContent = "⚠ " + e.message;
+    }
+  }
+
+  // ---------- size ----------
+  function buildSizeSeg() {
+    const seg = $("sizeSeg");
+    seg.innerHTML = "";
+    for (const key of SIZE_ORDER) {
+      const b = document.createElement("button");
+      b.className = "chip";
+      b.type = "button";
+      b.textContent = SIZE_LABEL[key];
+      b.dataset.size = key;
+      b.setAttribute("aria-pressed", String(settings.fishSize === key));
+      b.addEventListener("click", () => {
+        if (settings.fishSize === key) return;
+        settings.fishSize = key;                       // optimistic
+        renderSize();
+        patch({ fishSize: key });
+      });
+      seg.appendChild(b);
+    }
+  }
+  function renderSize() {
+    for (const b of $("sizeSeg").children)
+      b.setAttribute("aria-pressed", String(b.dataset.size === settings.fishSize));
+  }
+
+  // ---------- sound ----------
+  function renderSound() {
+    const t = $("soundToggle");
+    t.setAttribute("aria-pressed", String(settings.soundOn));
+    t.textContent = settings.soundOn ? "🔊 Sound on" : "🔈 Sound off";
+    const pct = Math.round((settings.volume || 0) * 100);
+    $("vol").value = pct;
+    $("volpct").textContent = pct + "%";
+  }
+  $("soundToggle").addEventListener("click", () => {
+    settings.soundOn = !settings.soundOn;              // optimistic
+    renderSound();
+    patch({ soundOn: settings.soundOn });
+  });
+  $("vol").addEventListener("input", () => {
+    const pct = Number($("vol").value);
+    settings.volume = pct / 100;
+    $("volpct").textContent = pct + "%";
+    clearTimeout(volTimer);
+    volTimer = setTimeout(() => patch({ volume: settings.volume }), 250);   // debounce
+  });
+
+  // ---------- fish ----------
+  // build with DOM APIs (never innerHTML with guest name) -> no HTML injection
+  function renderFish() {
+    const grid = $("fishGrid");
+    grid.innerHTML = "";
+    const hidden = new Set(settings.hidden);
+    let swimming = 0, total = 0;
+    for (const f of catalog) {
+      total++;
+      const swims = f.eligible && !hidden.has(f.id);
+      if (swims) swimming++;
+
+      const card = document.createElement("div");
+      card.className = "fish";
+      card.dataset.swims = String(swims);
+
+      const tog = document.createElement("button");
+      tog.className = "fishtoggle";
+      tog.type = "button";
+      tog.disabled = !f.eligible;
+      tog.title = f.eligible ? "Nage / ne nage pas" : (f.status || "waiting");
+      const badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = swims ? "✓" : (f.eligible ? "✕" : "…");
+      const img = document.createElement("img");
+      img.loading = "lazy"; img.alt = ""; img.src = f.thumb;
+      tog.append(badge, img);
+      if (f.eligible) {
+        tog.addEventListener("click", () => {
+          const h = new Set(settings.hidden);
+          if (h.has(f.id)) h.delete(f.id); else h.add(f.id);
+          settings.hidden = [...h];
+          renderFish();                                 // optimistic
+          patch({ hidden: settings.hidden });
+        });
+      }
+
+      const species = document.createElement("div");
+      species.className = "species";
+      species.textContent = f.display || f.species || "?";
+
+      const nameIn = document.createElement("input");
+      nameIn.className = "nameedit";
+      nameIn.type = "text";
+      nameIn.maxLength = 40;
+      nameIn.placeholder = "Nom (optionnel)";
+      nameIn.value = f.name || "";                       // safe: value, not HTML
+      nameIn.addEventListener("change", async () => {
+        const v = nameIn.value.trim();
+        try {
+          const r = await fetch("api/fish/" + encodeURIComponent(f.id) + "/name",
+            { method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ name: v }) });
+          const j = await r.json();
+          if (j.ok) { f.name = j.name; nameIn.value = j.name; }
+        } catch (e) { /* keep the typed value; next load reconciles */ }
+      });
+
+      const meta = document.createElement("div");
+      meta.className = "meta";
+      meta.textContent = (f.source === "draw" ? "✏️ painted" : "📷 photo")
+        + (f.eligible ? "" : " · " + (f.status || "waiting"));
+
+      card.append(tog, species, nameIn, meta);
+      grid.appendChild(card);
+    }
+    $("fishCount").textContent = swimming + " of " + total + " swimming";
+  }
+
+  $("showAll").addEventListener("click", () => { settings.hidden = []; renderFish(); patch({ hidden: [] }); });
+  $("hideAll").addEventListener("click", () => {
+    settings.hidden = catalog.filter((f) => f.eligible).map((f) => f.id);
+    renderFish();
+    patch({ hidden: settings.hidden });
+  });
+
+  function renderAll() { renderSize(); renderSound(); renderFish(); }
+
+  // ---------- boot ----------
+  (async () => {
+    try {
+      const [s, c] = await Promise.all([api("GET", "api/settings"), api("GET", "api/fish/catalog")]);
+      settings = { fishSize: s.fishSize, soundOn: s.soundOn, volume: s.volume, hidden: s.hidden, presets: s.presets };
+      catalog = c;
+    } catch (e) {
+      $("foot").textContent = "⚠ " + e.message;
+    }
+    buildSizeSeg();
+    renderAll();
+  })();
+})();
+</script>
+</body>
+</html>

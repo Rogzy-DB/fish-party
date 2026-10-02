@@ -1,0 +1,538 @@
+{
+  "_doc": "Species book for the Tank — the 12 REAL templates guests colour (ids match v2/recognizer/species.py). The renderer reads ONLY this file to know how each recognized creature BEHAVES; the LOOK comes from the guest's own drawing PNG (served via /api/fish/manifest -> /fish/<id>.png), NOT from art in here. So there is deliberately no `count`, no `color`, no `texture` field: one Creature is spawned per real accepted fish and assigned its species profile by `id`. Adding a species = add an entry here (+ a template + recognizer row). No engine change.\n\nFIELD GUIDE:\n  role: prey|predator|neutral  -> drives pursue/evade forces.\n  scale: [min,max] sprite scale applied to the ~520px drawing (before depth falloff).\n  speed: [min,max] cruise speed px/s. max_force: steering cap. turn_rate: rad/s heading change cap.\n  depth_band: [near,far] in 0..1 parallax depth (0=front/largest/opaque, 1=back/smallest/faded). PURELY visual layering.\n  y_band: [top,bottom] fraction of tank height the creature prefers to occupy (0=surface,1=floor). A soft vertical force keeps it in band; this is how bottom-dwellers stay on the floor and jellyfish stay high. Omit for free-roaming.\n  y_band_force: strength of that vertical pull (higher = more strictly pinned).\n  schooling: true -> separation/alignment/cohesion with same species inside neighbor_radius (separation inside separation_radius). false -> loner (keeps personal space only).\n  weights: unitless multipliers on each active steering force: separation, alignment, cohesion, wander, drift_up, pursue, evade, flee. Absent key = behavior off.\n  flee_radius / pursue_radius: interaction distances (touch-flee, predator chase).\n  alpha: optional base opacity multiplier in 0..1 (before depth falloff). Jellyfish are slightly translucent so the scene shows through. Omit = fully opaque.\n  wobble: body animation style + amp + freq. Legacy SPRITE-TRANSFORM styles (still used by 11 species): undulate (lateral fish/shark), pulse (jellyfish bell), tail_wave (seahorse), paddle (turtle/manta flippers), scuttle (crab side-shuffle), idle (near-static urchin), startle (puffer inflate on flee). \n\n  MESH deformation (the new per-vertex foundation, meshbody.js): set wobble.mesh = a profile name and the renderer draws that species as a deformable PixiJS mesh instead of a transformed sprite, driven by a LIVE time uniform. Only the JELLYFISH uses it today; the rest keep the sprite wobble until tuned one at a time. Mesh grid = cols x rows verts over the texture. Per-vertex offset comes from the profile as a function of (u, v, t): v in [0=top,1=bottom] of the texture.\n    Jellyfish mesh params: pulseFreq (bell spring cycles/s), bellSplit (v boundary bell|tentacles), bellAmp (squash/stretch depth), bellWiden (sideways bulge on squash, volume trade), tentAmp (tentacle sway amplitude), waveFreq (tentacle ripple rate), waveSpeed (downward phase-travel of the wave), bobAmp (px of vertical bob synced to the bell power-stroke), bobDrift (px extra slow sink between strokes).\n\n  orient: how the drawing turns to face travel. 'level' = stays horizontal, faces left/right by mirroring on X (never a vertical flip), with a small clamped pitch (max_pitch_deg) — shark & most side-view fish. 'bank' = rotates fully to heading (top-down gliders: manta ray). 'upright' = never rotates (jellyfish, seahorse, crab, urchin), keeps its sway. max_pitch_deg: pitch clamp for 'level' fish.",
+  "species": [
+    {
+      "id": "jellyfish",
+      "label": "Jellyfish",
+      "role": "neutral",
+      "scale": [
+        0.276,
+        0.368
+      ],
+      "speed": [
+        9,
+        20
+      ],
+      "max_force": 30,
+      "turn_rate": 0.7,
+      "depth_band": [
+        0.15,
+        0.7
+      ],
+      "y_band": [
+        0.08,
+        0.74
+      ],
+      "y_band_force": 0.35,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 80,
+      "view_angle_deg": 360,
+      "alpha": 0.86,
+      "weights": {
+        "separation": 0.5,
+        "wander": 0.4,
+        "flee": 1.2
+      },
+      "vertical_bias": 0.22,
+      "h_sway": 0.85,
+      "flee_radius": 180,
+      "wobble": {
+        "style": "pulse",
+        "amp": 0.17,
+        "freq": 2.0,
+        "mesh": "jellyfish",
+        "cols": 12,
+        "rows": 16,
+        "pulseFreq": 1.15,
+        "bellSplit": 0.5,
+        "bellAmp": 0.28,
+        "bellWiden": 1.0,
+        "tentAmp": 0.16,
+        "waveFreq": 5.5,
+        "waveSpeed": 2.5,
+        "bobAmp": 34,
+        "bobDrift": 10
+      },
+      "orient": "upright"
+    },
+    {
+      "id": "turtle",
+      "label": "Sea turtle",
+      "role": "neutral",
+      "scale": [
+        0.414,
+        0.529
+      ],
+      "speed": [
+        20,
+        36
+      ],
+      "max_force": 58,
+      "turn_rate": 0.55,
+      "depth_band": [
+        0.1,
+        0.5
+      ],
+      "y_band": [
+        0.1,
+        0.75
+      ],
+      "y_band_force": 0.3,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 100,
+      "view_angle_deg": 300,
+      "weights": {
+        "separation": 0.7,
+        "wander": 0.3,
+        "flee": 1.6
+      },
+      "flee_radius": 220,
+      "wobble": {
+        "style": "paddle",
+        "amp": 0.06,
+        "freq": 2.6
+      },
+      "orient": "swim",
+      "max_pitch_deg": 45
+    },
+    {
+      "id": "seahorse",
+      "label": "Seahorse",
+      "role": "prey",
+      "scale": [
+        0.23,
+        0.322
+      ],
+      "speed": [
+        22,
+        40
+      ],
+      "max_force": 40,
+      "turn_rate": 0.9,
+      "depth_band": [
+        0.25,
+        0.7
+      ],
+      "y_band": [
+        0.05,
+        0.92
+      ],
+      "y_band_force": 0.0,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 55,
+      "view_angle_deg": 360,
+      "weights": {
+        "separation": 0.6,
+        "wander": 0.3,
+        "flee": 1.8,
+        "evade": 2.0
+      },
+      "flee_radius": 200,
+      "wobble": {
+        "style": "tail_wave",
+        "amp": 0.15,
+        "freq": 5.5
+      },
+      "orient": "upright",
+      "vertical_bias": 0.82
+    },
+    {
+      "id": "shark",
+      "label": "Shark",
+      "role": "predator",
+      "scale": [
+        0.552,
+        0.69
+      ],
+      "speed": [
+        55,
+        110
+      ],
+      "max_force": 130,
+      "turn_rate": 0.8,
+      "depth_band": [
+        0.0,
+        0.4
+      ],
+      "y_band": [
+        0.15,
+        0.85
+      ],
+      "y_band_force": 0.15,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 140,
+      "view_angle_deg": 210,
+      "weights": {
+        "separation": 0.5,
+        "wander": 0.35,
+        "cruise": 0.7,
+        "pursue": 1.8
+      },
+      "pursue_radius": 380,
+      "strike_radius": 150,
+      "hunt_cooldown": 3.5,
+      "wobble": {
+        "style": "undulate",
+        "amp": 0.06,
+        "freq": 4.0,
+        "mesh": "swim",
+        "cols": 20,
+        "rows": 6,
+        "swimAmp": 0.09,
+        "waveFreq": 1.6,
+        "waveLen": 0.7,
+        "taper": 2.0
+      },
+      "orient": "swim",
+      "max_pitch_deg": 55
+    },
+    {
+      "id": "sea_urchin",
+      "label": "Sea urchin",
+      "role": "neutral",
+      "scale": [
+        0.207,
+        0.287
+      ],
+      "speed": [
+        1,
+        3
+      ],
+      "max_force": 10,
+      "turn_rate": 0.25,
+      "depth_band": [
+        0.05,
+        0.35
+      ],
+      "y_band": [
+        0.9,
+        0.99
+      ],
+      "y_band_force": 2.8,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 50,
+      "view_angle_deg": 360,
+      "weights": {
+        "separation": 0.4,
+        "wander": 0.2
+      },
+      "wobble": {
+        "style": "idle",
+        "amp": 0.03,
+        "freq": 1.2
+      },
+      "orient": "upright"
+    },
+    {
+      "id": "octopus",
+      "label": "Octopus",
+      "role": "neutral",
+      "scale": [
+        0.345,
+        0.437
+      ],
+      "speed": [
+        10,
+        24
+      ],
+      "max_force": 50,
+      "turn_rate": 1.1,
+      "depth_band": [
+        0.15,
+        0.6
+      ],
+      "y_band": [
+        0.55,
+        0.92
+      ],
+      "y_band_force": 0.5,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 90,
+      "view_angle_deg": 320,
+      "weights": {
+        "separation": 0.6,
+        "wander": 1.0,
+        "drift_up": 0.15,
+        "flee": 1.7
+      },
+      "flee_radius": 210,
+      "wobble": {
+        "style": "pulse",
+        "amp": 0.1,
+        "freq": 3.0,
+        "mesh": "octopus",
+        "cols": 16,
+        "rows": 16,
+        "headSplit": 0.4,
+        "tentAmp": 0.13,
+        "waveFreq": 3.5,
+        "waveSpeed": 1.8,
+        "spread": 7.0,
+        "breatheAmp": 0.025,
+        "breatheFreq": 1.3
+      },
+      "orient": "upright"
+    },
+    {
+      "id": "angelfish",
+      "label": "Angelfish",
+      "role": "prey",
+      "scale": [
+        0.23,
+        0.322
+      ],
+      "speed": [
+        48,
+        85
+      ],
+      "max_force": 120,
+      "turn_rate": 3.2,
+      "depth_band": [
+        0.1,
+        0.65
+      ],
+      "y_band": [
+        0.15,
+        0.7
+      ],
+      "y_band_force": 0.3,
+      "schooling": true,
+      "neighbor_radius": 190,
+      "separation_radius": 55,
+      "view_angle_deg": 280,
+      "weights": {
+        "separation": 1.3,
+        "alignment": 1.6,
+        "cohesion": 1.9,
+        "wander": 0.4,
+        "flee": 2.8,
+        "evade": 2.6
+      },
+      "flee_radius": 240,
+      "wobble": {
+        "style": "undulate",
+        "amp": 0.1,
+        "freq": 8.5
+      },
+      "orient": "swim",
+      "max_pitch_deg": 70
+    },
+    {
+      "id": "crab",
+      "label": "Crab",
+      "role": "neutral",
+      "scale": [
+        0.23,
+        0.31
+      ],
+      "speed": [
+        8,
+        20
+      ],
+      "max_force": 40,
+      "turn_rate": 0.6,
+      "depth_band": [
+        0.05,
+        0.4
+      ],
+      "y_band": [
+        0.88,
+        0.99
+      ],
+      "y_band_force": 1.8,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 60,
+      "view_angle_deg": 360,
+      "weights": {
+        "separation": 0.7,
+        "wander": 0.7
+      },
+      "wobble": {
+        "style": "scuttle",
+        "amp": 0.08,
+        "freq": 6.0
+      },
+      "orient": "upright"
+    },
+    {
+      "id": "manta_ray",
+      "label": "Manta ray",
+      "role": "neutral",
+      "scale": [
+        0.506,
+        0.644
+      ],
+      "speed": [
+        38,
+        66
+      ],
+      "max_force": 70,
+      "turn_rate": 0.4,
+      "depth_band": [
+        0.05,
+        0.45
+      ],
+      "y_band": [
+        0.1,
+        0.65
+      ],
+      "y_band_force": 0.35,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 130,
+      "view_angle_deg": 260,
+      "weights": {
+        "separation": 0.6,
+        "wander": 0.25,
+        "flee": 1.4
+      },
+      "flee_radius": 240,
+      "wobble": {
+        "style": "paddle",
+        "amp": 0.12,
+        "freq": 2.4
+      },
+      "orient": "swim",
+      "max_pitch_deg": 60
+    },
+    {
+      "id": "whale",
+      "label": "Whale",
+      "role": "neutral",
+      "scale": [
+        0.644,
+        0.805
+      ],
+      "speed": [
+        16,
+        28
+      ],
+      "max_force": 60,
+      "turn_rate": 0.22,
+      "depth_band": [
+        0.2,
+        0.7
+      ],
+      "y_band": [
+        0.15,
+        0.7
+      ],
+      "y_band_force": 0.25,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 180,
+      "view_angle_deg": 240,
+      "weights": {
+        "separation": 0.5,
+        "wander": 0.12
+      },
+      "wobble": {
+        "style": "undulate",
+        "amp": 0.04,
+        "freq": 2.2,
+        "mesh": "swim",
+        "cols": 18,
+        "rows": 6,
+        "swimAmp": 0.05,
+        "waveFreq": 0.75,
+        "waveLen": 0.55,
+        "taper": 2.3
+      },
+      "orient": "swim",
+      "max_pitch_deg": 32
+    },
+    {
+      "id": "pufferfish",
+      "label": "Pufferfish",
+      "role": "prey",
+      "scale": [
+        0.253,
+        0.345
+      ],
+      "speed": [
+        20,
+        40
+      ],
+      "max_force": 70,
+      "turn_rate": 2.0,
+      "depth_band": [
+        0.1,
+        0.6
+      ],
+      "y_band": [
+        0.25,
+        0.8
+      ],
+      "y_band_force": 0.4,
+      "schooling": false,
+      "neighbor_radius": 0,
+      "separation_radius": 70,
+      "view_angle_deg": 300,
+      "weights": {
+        "separation": 0.8,
+        "wander": 1.0,
+        "flee": 3.2,
+        "evade": 2.8
+      },
+      "flee_radius": 230,
+      "wobble": {
+        "style": "startle",
+        "amp": 0.1,
+        "freq": 5.0
+      },
+      "orient": "swim",
+      "max_pitch_deg": 60
+    },
+    {
+      "id": "squid",
+      "label": "Squid",
+      "role": "prey",
+      "scale": [
+        0.253,
+        0.345
+      ],
+      "speed": [
+        55,
+        95
+      ],
+      "max_force": 120,
+      "turn_rate": 3.0,
+      "depth_band": [
+        0.1,
+        0.7
+      ],
+      "y_band": [
+        0.2,
+        0.85
+      ],
+      "y_band_force": 0.3,
+      "schooling": true,
+      "neighbor_radius": 180,
+      "separation_radius": 50,
+      "view_angle_deg": 280,
+      "weights": {
+        "separation": 1.3,
+        "alignment": 1.5,
+        "cohesion": 1.7,
+        "wander": 0.4,
+        "flee": 3.0,
+        "evade": 2.8
+      },
+      "flee_radius": 230,
+      "wobble": {
+        "style": "undulate",
+        "amp": 0.12,
+        "freq": 9.0
+      },
+      "orient": "swim",
+      "max_pitch_deg": 75
+    }
+  ]
+}

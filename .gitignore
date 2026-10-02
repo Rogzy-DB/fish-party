@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+# runtime data: the fish your guests add, their labels, the settings store
+data/
+demo/*/settings.json
+demo/*/settings.json.tmp
+demo/*/report/
+# your own ambient music (never commit a copyrighted track)
+tank/static/audio/

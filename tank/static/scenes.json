@@ -1,0 +1,196 @@
+{
+  "_doc": {
+    "what": "The Scene book. Data-driven aquarium backgrounds. The Tank renderer (scene.js) reads this file at load and builds one background per entry. Scenes auto-rotate on a timer with a crossfade; press M / ArrowRight / ArrowLeft to cycle manually during review.",
+    "add_a_scene": "Append an object to `scenes`. Minimum = {id, name, palette:{top,mid,bottom}, glow}. That alone gives a gradient sky + palette-tinted drifting glows (the 'simple' tier, like ocean/sunset/moonlight). Add `decorations` pointing at a registered procedural art id (see decoration_ids) to draw a seabed scene on top. No engine edit needed for a new palette-only scene.",
+    "add_illustrated_art_later": "SEAM (not built yet): add a `backdrop_image` field with a RELATIVE url (e.g. 'static/scenes/reef.jpg'). scene.js has a hook \u2014 when backdrop_image is present it should draw that image as the base layer (behind/instead of the gradient) and skip the procedural gradient. The gradient palette then only tints the glows. This lets a hand-illustrated backdrop drop in per scene with no other change. Keep images at display resolution (<= ~1920px long side) for the TV memory ceiling.",
+    "fields": {
+      "id": "stable slug, used in code / URLs",
+      "name": "display name shown in the rotation banner",
+      "kind": "'simple' (gradient only) or 'scene' (gradient + a decoration layer). Cosmetic/metadata; the presence of `decorations` is what actually adds art.",
+      "palette": "{top,mid,bottom} vertical gradient stops as [r,g,b] 0-255. top=surface light, bottom=deep floor.",
+      "glow": "[r,g,b] tint of the soft drifting light blobs.",
+      "decorations": "id of a procedural art function registered in scene.js DECORATIONS, or null. Ported 1:1 from v1's canvas-2D art, rendered once into an offscreen canvas -> PIXI texture in the decoration layer (parallax-able).",
+      "parallax": "how much the decoration layer shifts vs the camera drift (0 = locked to floor). Optional, default 0.06.",
+      "water": "{tint:[r,g,b] optional, alpha 0-1} overrides for the caustics/water overlay per scene. Optional.",
+      "backdrop_image": "OPTIONAL relative url of an illustrated backdrop. Not yet consumed by the renderer \u2014 reserved seam (see add_illustrated_art_later).",
+      "events": "OPTIONAL scene event rules, e.g. {\"on_block\": \"light_surge\"}. Reserved seam for block-reactive scenes; renderer ignores unknown rules today."
+    },
+    "decoration_ids": [
+      "coral_reef",
+      "greek_ruins",
+      "submarine"
+    ],
+    "config": "Rotation interval + crossfade duration are CONFIG constants in scene.js (ROTATE_EVERY_S, BLEND_DURATION_S).",
+    "order": "Scene list order = display rotation order; a DECORATED scene goes first so the wall never opens on a plain gradient (owner feedback 2026-07-02)."
+  },
+  "scenes": [
+    {
+      "id": "coral_reef",
+      "name": "coral reef",
+      "kind": "scene",
+      "palette": {
+        "top": [
+          22,
+          110,
+          120
+        ],
+        "mid": [
+          12,
+          60,
+          80
+        ],
+        "bottom": [
+          4,
+          24,
+          38
+        ]
+      },
+      "glow": [
+        140,
+        230,
+        200
+      ],
+      "decorations": "coral_reef"
+    },
+    {
+      "id": "sunset",
+      "name": "sunset",
+      "kind": "simple",
+      "palette": {
+        "top": [
+          255,
+          140,
+          90
+        ],
+        "mid": [
+          170,
+          60,
+          120
+        ],
+        "bottom": [
+          40,
+          20,
+          70
+        ]
+      },
+      "glow": [
+        255,
+        180,
+        140
+      ],
+      "decorations": null
+    },
+    {
+      "id": "greek_ruins",
+      "name": "greek ruins",
+      "kind": "scene",
+      "palette": {
+        "top": [
+          80,
+          130,
+          170
+        ],
+        "mid": [
+          50,
+          90,
+          120
+        ],
+        "bottom": [
+          22,
+          40,
+          70
+        ]
+      },
+      "glow": [
+        230,
+        200,
+        150
+      ],
+      "decorations": "greek_ruins"
+    },
+    {
+      "id": "moonlight",
+      "name": "moonlight",
+      "kind": "simple",
+      "palette": {
+        "top": [
+          40,
+          20,
+          90
+        ],
+        "mid": [
+          22,
+          14,
+          54
+        ],
+        "bottom": [
+          5,
+          5,
+          25
+        ]
+      },
+      "glow": [
+        150,
+        140,
+        230
+      ],
+      "decorations": null
+    },
+    {
+      "id": "submarine",
+      "name": "submarine",
+      "kind": "scene",
+      "palette": {
+        "top": [
+          14,
+          46,
+          90
+        ],
+        "mid": [
+          8,
+          28,
+          64
+        ],
+        "bottom": [
+          2,
+          10,
+          28
+        ]
+      },
+      "glow": [
+        255,
+        230,
+        130
+      ],
+      "decorations": "submarine"
+    },
+    {
+      "id": "ocean",
+      "name": "ocean",
+      "kind": "simple",
+      "palette": {
+        "top": [
+          6,
+          62,
+          110
+        ],
+        "mid": [
+          7,
+          42,
+          84
+        ],
+        "bottom": [
+          1,
+          14,
+          38
+        ]
+      },
+      "glow": [
+        120,
+        220,
+        255
+      ],
+      "decorations": null
+    }
+  ]
+}

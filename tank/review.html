@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Review tray — Fish Party</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    font: 15px/1.5 system-ui, sans-serif; color: #dfe9f5;
+    background: linear-gradient(#06182e, #041020 70%, #020a14);
+    min-height: 100vh; padding: 24px 14px 48px;
+    display: flex; flex-direction: column; align-items: center;
+  }
+  h1 { font-size: 1.3rem; margin-bottom: 2px; }
+  p.sub { color: #8fb0cc; font-size: .9rem; margin-bottom: 20px; text-align: center; }
+  #tray { width: 100%; max-width: 560px; display: flex; flex-direction: column; gap: 18px; }
+  .fish {
+    background: #0a2038cc; border: 1px solid #1d3a5c; border-radius: 14px;
+    padding: 16px; display: flex; flex-direction: column; gap: 12px;
+  }
+  .fish img {
+    max-height: 180px; max-width: 100%; align-self: center;
+    background: #eef4fa; border-radius: 8px; padding: 6px;
+  }
+  .fish .meta { color: #9db8d2; font-size: .82rem; text-align: center; }
+  .choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .choices button {
+    padding: 9px 4px; font-size: .85rem; border: 1px solid #2c567f;
+    border-radius: 8px; background: #10304f; color: #cfe2f5; cursor: pointer;
+  }
+  .choices button:hover { background: #1a4a7a; }
+  .choices button.accept { border-color: #2c7f4f; background: #10402a; color: #c8f0d6; grid-column: span 3; font-size: 1rem; padding: 12px; }
+  .choices button.discard { border-color: #7a3a2c; background: #401510; color: #f0b9ad; grid-column: span 3; }
+  .empty { color: #7d99b5; text-align: center; margin-top: 40px; }
+  a.nav { color: #6fb1e8; font-size: .9rem; margin-top: 26px; }
+  .done { text-align: center; font-size: 1rem; padding: 12px; }
+</style>
+<script>
+  // home = your own party (everything open) · public = the shared tank (owner
+  // pages behind a password) · showcase = read-only. serve.py fills this in.
+  window.TANK_MODE = "TANK_MODE_PLACEHOLDER";
+  document.documentElement.dataset.mode = window.TANK_MODE;
+</script>
+<style>
+  [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
+  [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only { display: none !important; }
+</style>
+</head>
+<body>
+  <h1>🔎 Review tray</h1>
+  <p class="sub">New fish wait here until you decide.<br>Nothing swims without your OK.</p>
+  <div id="tray"><div class="empty">loading…</div></div>
+  <a class="nav" href="draw">→ add a fish</a>
+  <a class="nav" href="./">→ watch the tank</a>
+
+<script>
+(async () => {
+  const tray = document.getElementById("tray");
+  let species = [];
+  try {
+    const reg = await (await fetch("static/species.json", { cache: "no-store" })).json();
+    species = reg.species.map(s => ({ id: s.id, label: s.label }));
+  } catch (e) { tray.innerHTML = '<div class="empty">failed to load species book</div>'; return; }
+
+  async function refresh() {
+    let pending = [];
+    try { pending = await (await fetch("api/review/pending", { cache: "no-store" })).json(); }
+    catch (e) { tray.innerHTML = '<div class="empty">failed to load tray</div>'; return; }
+    if (!pending.length) { tray.innerHTML = '<div class="empty">✨ tray is empty — every fish is decided</div>'; return; }
+    tray.innerHTML = "";
+    for (const f of pending) {
+      const card = document.createElement("div");
+      card.className = "fish";
+      card.innerHTML = `<img alt=""><div class="meta"></div><div class="choices"></div>`;
+      card.querySelector("img").src = f.image_url;
+      // the name is a stranger's free text: textContent only, never innerHTML
+      const guess = species.find(s => s.id === f.species);
+      card.querySelector(".meta").textContent =
+        (f.name ? "“" + f.name + "” · " : "") +
+        (f.source === "draw" ? "painted on a phone" : "photo") +
+        (guess ? " · " + guess.label : "") +
+        (f.source === "draw" ? "" : " · confidence " + Math.round((f.confidence || 0) * 100) + "%");
+      const choices = card.querySelector(".choices");
+      if (guess) {
+        const ok = document.createElement("button");
+        ok.className = "accept";
+        ok.textContent = "✅ Let it swim (" + guess.label + ")";
+        ok.onclick = () => decide(card, f.id, { species: guess.id }, guess.label);
+        choices.appendChild(ok);
+      }
+      for (const s of species) {
+        const b = document.createElement("button");
+        b.textContent = s.label;
+        b.onclick = () => decide(card, f.id, { species: s.id }, s.label);
+        choices.appendChild(b);
+      }
+      const d = document.createElement("button");
+      d.className = "discard";
+      d.textContent = "🗑 discard (not a valid drawing)";
+      d.onclick = () => decide(card, f.id, { discard: true }, null);
+      choices.appendChild(d);
+      tray.appendChild(card);
+    }
+  }
+
+  async function decide(card, id, decision, label) {
+    try {
+      const r = await fetch("api/review/decide", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...decision }),
+      });
+      const j = await r.json();
+      if (j.ok) {
+        card.innerHTML = '<div class="done"></div>';
+        card.firstChild.textContent = label ? "✅ " + label + " is swimming" : "🗑 discarded";
+        setTimeout(refresh, 1500);
+      } else alert("failed: " + (j.error || "unknown"));
+    } catch (e) { alert("network error: " + e); }
+  }
+
+  refresh();
+})();
+</script>
+</body>
+</html>

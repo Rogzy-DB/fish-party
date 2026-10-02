@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fish Party — colour a fish, watch it swim</title>
+<meta name="description" content="A shared aquarium where every creature was drawn by someone. Colour a fish on paper or on your phone, and watch it swim among live Bitcoin bubbles. Free and open source: host your own.">
+<meta property="og:title" content="Fish Party">
+<meta property="og:description" content="Colour a fish, watch it swim. A shared aquarium drawn by everyone — and the code to throw your own.">
+<meta property="og:image" content="img/tank.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐠</text></svg>">
+<style>
+  :root {
+    --deep: #031426; --sea: #072a45; --shelf: #0b3a5c;
+    --foam: #e8f6ff; --mist: #9fc3dd; --faint: #6e93b0;
+    --coral: #ff8a5c; --sun: #ffd166; --kelp: #3ddc97; --line: rgba(159, 195, 221, .18);
+    --radius: 18px;
+    --font: ui-rounded, "SF Pro Rounded", "Nunito", "Segoe UI", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; font: 17px/1.6 var(--font); color: var(--foam);
+    background: linear-gradient(180deg, #0b4a6e 0, var(--sea) 520px, var(--deep) 1600px, #01070f 100%);
+    background-color: var(--deep);
+  }
+  a { color: var(--sun); }
+  .wrap { width: 100%; max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+  /* top bar */
+  header.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0; }
+  .brand { white-space: nowrap; font-weight: 800; font-size: 1.25rem; color: var(--foam); text-decoration: none; letter-spacing: .01em; }
+  nav.links { display: flex; gap: 18px; flex-wrap: wrap; justify-content: flex-end; }
+  nav.links a { color: var(--mist); text-decoration: none; font-size: .95rem; }
+  nav.links a:hover { color: var(--foam); }
+
+  /* hero */
+  .hero { padding: 28px 0 8px; text-align: center; }
+  .hero h1 { font-size: clamp(2.3rem, 7vw, 4.4rem); line-height: 1.05; margin: 0 0 14px; font-weight: 800; letter-spacing: -.01em; }
+  .hero h1 em { font-style: normal; color: var(--sun); }
+  .hero p.lead { font-size: clamp(1.05rem, 2.4vw, 1.3rem); color: var(--mist); max-width: 640px; margin: 0 auto 26px; }
+  .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; min-height: 50px; padding: 0 24px;
+    border-radius: 999px; font: 700 1.05rem var(--font); text-decoration: none; cursor: pointer;
+    border: 2px solid transparent; transition: transform .12s, background .12s;
+  }
+  .btn:hover { transform: translateY(-2px); }
+  .btn.primary { background: var(--sun); color: #2a1d00; }
+  .btn.ghost { border-color: var(--line); color: var(--foam); background: rgba(255,255,255,.04); }
+
+  .window {
+    position: relative; margin: 36px auto 0; border-radius: var(--radius); overflow: hidden;
+    border: 1px solid var(--line); box-shadow: 0 30px 80px rgba(0,0,0,.45), 0 0 0 8px rgba(255,255,255,.03);
+    aspect-ratio: 16 / 9; background: #0a3a58 url(img/tank.jpg) center / cover;
+  }
+  .window iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  .window .tag {
+    position: absolute; left: 14px; bottom: 14px; z-index: 2; padding: 6px 12px; border-radius: 999px;
+    background: rgba(3, 20, 38, .7); backdrop-filter: blur(6px); font-size: .85rem; color: var(--mist);
+    text-decoration: none;
+  }
+  .window .tag b { color: var(--foam); }
+
+  /* sections */
+  section { padding: 72px 0 8px; }
+  h2 { font-size: clamp(1.7rem, 4.2vw, 2.4rem); line-height: 1.15; margin: 0 0 10px; font-weight: 800; }
+  .kicker { color: var(--kelp); font-weight: 700; text-transform: uppercase; letter-spacing: .12em; font-size: .78rem; margin-bottom: 6px; }
+  p.intro { color: var(--mist); max-width: 680px; margin: 0 0 28px; }
+
+  .steps { display: grid; grid-template-columns: 1fr; gap: 16px; counter-reset: step; }
+  .step {
+    background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: var(--radius);
+    padding: 22px 22px 20px; position: relative;
+  }
+  .step .n { font-size: 2rem; line-height: 1; margin-bottom: 10px; }
+  .step h3 { margin: 0 0 6px; font-size: 1.2rem; }
+  .step p { margin: 0; color: var(--mist); font-size: .98rem; }
+
+  /* the shared tank */
+  .commons {
+    display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center;
+    background: radial-gradient(120% 140% at 0% 0%, rgba(61,220,151,.14), transparent 60%), rgba(255,255,255,.03);
+    border: 1px solid var(--line); border-radius: calc(var(--radius) + 6px); padding: 28px 22px;
+  }
+  .counter { font-size: clamp(2.6rem, 8vw, 4rem); font-weight: 800; line-height: 1; color: var(--kelp); }
+  .counter small { display: block; font-size: 1rem; font-weight: 600; color: var(--mist); margin-top: 6px; }
+  .commons ul { margin: 0 0 22px; padding-left: 1.2em; color: var(--mist); }
+  .commons li { margin: 4px 0; }
+
+  /* bitcoin */
+  .btc { display: grid; grid-template-columns: 1fr; gap: 24px; }
+  .legend { display: grid; gap: 10px; }
+  .legend .row { display: flex; align-items: center; gap: 12px; color: var(--mist); font-size: .95rem; }
+  .bubble { flex: none; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.55); }
+  .ramp { display: flex; gap: 8px; align-items: center; }
+  .ramp span { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.5); }
+
+  /* species / templates */
+  .grid12 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tpl {
+    background: #f7fbff; border-radius: 14px; padding: 10px 8px 8px; text-align: center; text-decoration: none;
+    color: #1a3550; font-size: .82rem; font-weight: 700; display: flex; flex-direction: column; gap: 6px;
+    transition: transform .12s;
+  }
+  .tpl:hover { transform: translateY(-3px) rotate(-1deg); }
+  .tpl img { width: 100%; aspect-ratio: 1; object-fit: contain; }
+  .dl { margin-top: 18px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+  /* party */
+  .party { display: grid; grid-template-columns: 1fr; gap: 24px; align-items: center; }
+  .party .shot { border-radius: var(--radius); overflow: hidden; border: 1px solid var(--line); aspect-ratio: 16/9; background: url(img/tank.jpg) center / cover; display: block; }
+
+  /* host your own */
+  .need { display: grid; grid-template-columns: 1fr; gap: 10px; margin: 0 0 24px; padding: 0; list-style: none; }
+  .need li { display: flex; gap: 12px; align-items: flex-start; color: var(--mist); }
+  .need li b { color: var(--foam); }
+  .need .ic { font-size: 1.4rem; line-height: 1.2; }
+  pre {
+    margin: 0; background: #010b16; border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+    overflow-x: auto; font: .9rem/1.6 ui-monospace, "SF Mono", Menlo, Consolas, monospace; color: #cfe8ff;
+  }
+  pre .c { color: var(--faint); }
+
+  footer.end { padding: 80px 0 40px; color: var(--faint); font-size: .9rem; text-align: center; }
+  footer.end a { color: var(--mist); }
+  .fish-line { font-size: 1.6rem; letter-spacing: .4em; margin-bottom: 14px; opacity: .8; }
+
+  @media (min-width: 720px) {
+    .steps { grid-template-columns: repeat(3, 1fr); }
+    .grid12 { grid-template-columns: repeat(6, 1fr); }
+    .commons { grid-template-columns: 1fr 1.4fr; padding: 40px; }
+    .btc { grid-template-columns: 1.1fr 1fr; align-items: center; }
+    .party { grid-template-columns: 1.2fr 1fr; }
+    .need { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 560px) {
+    nav.links a.opt { display: none; }
+    .window { aspect-ratio: 3 / 4; }
+  }
+  @media (prefers-reduced-motion: reduce) { .btn, .tpl { transition: none; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="brand" href="./">🐠 Fish Party</a>
+    <nav class="links">
+      <a href="#tank">The tank</a>
+      <a class="opt" href="#party">Our party</a>
+      <a class="opt" href="#templates">Templates</a>
+      <a href="#host">Host your own</a>
+      <a class="opt" href="https://github.com/Rogzy-DB/fish-party">GitHub</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Colour a fish.<br><em>Watch it swim.</em></h1>
+    <p class="lead">An aquarium where every creature was drawn by someone. Paint one on your phone, or colour a paper sheet with real pencils, and it joins the others in the water.</p>
+    <div class="ctas">
+      <a class="btn primary" href="tank/draw">✏️ Draw a fish</a>
+      <a class="btn ghost" href="tank/">🌊 Watch the shared tank</a>
+    </div>
+    <div class="window">
+      <iframe src="party/?embed&spawn=12" title="Our party tank, live" loading="lazy" allow="autoplay"></iframe>
+      <a class="tag" href="party/"><b>Live:</b> the 46 fish from our party ↗</a>
+    </div>
+  </div>
+
+  <section id="how">
+    <div class="kicker">How it works</div>
+    <h2>From a pencil to the deep sea</h2>
+    <p class="intro">There are 12 creatures to colour. The tank knows every one of their outlines, so it can find your drawing, turn it the right way up and teach it to swim.</p>
+    <div class="steps">
+      <div class="step"><div class="n">🖍️</div><h3>Colour</h3><p>Print a template and grab some pencils, or paint straight on your phone. Stay inside the lines or don't: it's your fish.</p></div>
+      <div class="step"><div class="n">📷</div><h3>Send</h3><p>Snap a photo of your sheet, or tap “Swim!” on your phone. The tank cuts out your creature and recognises which of the 12 it is.</p></div>
+      <div class="step"><div class="n">🐟</div><h3>Swim</h3><p>Each species moves its own way: jellyfish pulse up and down, sharks cruise and strike, the octopus ripples its arms, crabs stay on the sand.</p></div>
+    </div>
+  </section>
+
+  <section id="tank">
+    <div class="commons">
+      <div>
+        <div class="kicker">The shared tank</div>
+        <h2>One giant aquarium, drawn by everyone</h2>
+        <div class="counter"><span id="count">…</span><small>fish swimming right now</small></div>
+      </div>
+      <div>
+        <p class="intro" style="margin-bottom:14px">Add a fish from anywhere in the world. It joins every other visitor's creature in the same water.</p>
+        <ul>
+          <li>Paint on your phone, or upload a photo of a coloured template.</li>
+          <li>Give it a name if you like (no real names of kids, please).</li>
+          <li>A human keeper takes a quick look at each new fish before it swims, so check back later today.</li>
+        </ul>
+        <div class="ctas" style="justify-content:flex-start">
+          <a class="btn primary" href="tank/draw">✏️ Draw a fish</a>
+          <a class="btn ghost" href="tank/">Open the tank ↗</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="bitcoin">
+    <div class="btc">
+      <div>
+        <div class="kicker">The bubbles are real</div>
+        <h2>The water is alive with Bitcoin</h2>
+        <p class="intro">Every bubble rising from the sand is a real Bitcoin transaction waiting to be confirmed, live from the mempool. When a new block is found, the water flashes gold and every fish startles.</p>
+      </div>
+      <div class="legend">
+        <div class="row"><span class="bubble" style="width:10px;height:10px"></span><span class="bubble" style="width:20px;height:20px"></span><span class="bubble" style="width:32px;height:32px"></span> Bigger bubble = more bitcoin moved</div>
+        <div class="row"><span class="ramp"><span style="background:#8ca0dc"></span><span style="background:#50c3f7"></span><span style="background:#64dc64"></span><span style="background:#ffb432"></span><span style="background:#ff643c"></span></span> Colour = the fee it pays, from patient to in a hurry</div>
+        <div class="row"><span style="font-size:1.4rem">✨</span> Gold flash = a new block, about every 10 minutes</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="party">
+    <div class="party">
+      <a class="shot" href="party/" aria-label="Visit the party tank"></a>
+      <div>
+        <div class="kicker">Where it started</div>
+        <h2>It began at a party</h2>
+        <p class="intro">In June 2026 we put a colouring table in a corner of a family party and a projector on the wall. Guests of every age coloured paper fish, a scanner sent them to the tank, and by the end of the night 46 creatures were swimming together.</p>
+        <div class="ctas" style="justify-content:flex-start"><a class="btn ghost" href="party/">Visit the party tank ↗</a></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="templates">
+    <div class="kicker">Print &amp; colour</div>
+    <h2>The 12 templates</h2>
+    <p class="intro">A4 sheets, black outlines on white. Print them, colour them, then photograph them into any Fish Party tank, ours or yours.</p>
+    <div class="grid12" id="tpls"></div>
+    <div class="dl">
+      <a class="btn primary" href="templates/all-12-templates.pdf" download>⬇ All 12 in one PDF</a>
+    </div>
+  </section>
+
+  <section id="host">
+    <div class="kicker">Open source</div>
+    <h2>Throw your own Fish Party</h2>
+    <p class="intro">Birthdays, weddings, a classroom, a museum corner: the whole thing is free and runs on one laptop. Guests use their phones on your Wi-Fi; nothing needs the internet except the Bitcoin bubbles.</p>
+    <ul class="need">
+      <li><span class="ic">💻</span><span><b>A computer</b> to run the tank (any laptop, or a Raspberry Pi 5).</span></li>
+      <li><span class="ic">📽️</span><span><b>A projector or a TV</b> with a browser, pointed at the tank.</span></li>
+      <li><span class="ic">📱</span><span><b>Your guests' phones</b> to paint, or to photograph their sheets.</span></li>
+      <li><span class="ic">🖨️</span><span><b>A printer and pencils</b> if you want the paper version (kids love it).</span></li>
+    </ul>
+<pre><span class="c"># get it</span>
+git clone https://github.com/Rogzy-DB/fish-party
+cd fish-party
+python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt
+
+<span class="c"># run the tank on your network</span>
+.venv/bin/python tank/serve.py --host 0.0.0.0 --port 8000
+
+<span class="c"># projector → http://&lt;your-computer&gt;:8000/</span>
+<span class="c"># guests    → http://&lt;your-computer&gt;:8000/draw</span></pre>
+    <div class="ctas" style="justify-content:flex-start; margin-top:18px">
+      <a class="btn primary" href="https://github.com/Rogzy-DB/fish-party">The code on GitHub ↗</a>
+      <a class="btn ghost" href="https://github.com/Rogzy-DB/fish-party/blob/main/docs/HOST-A-PARTY.md">Party guide ↗</a>
+    </div>
+  </section>
+
+  <footer class="end">
+    <div class="fish-line">🐟 🐠 🦈 🐙 🐡</div>
+    Inspired by <a href="https://futurepark.teamlab.art/en/playinstallations/sketch_aquarium/">teamLab's Sketch Aquarium</a>: go see the real one if you ever can.<br>
+    Code under the MIT licence · party drawings under CC BY-NC 4.0 · bubbles from <a href="https://mempool.space">mempool.space</a>.<br>
+    Made by Rogzy &amp; Luna · <a href="https://github.com/Rogzy-DB/fish-party">Fork it on GitHub</a>
+  </footer>
+
+</div>
+<script>
+  // the 12 templates: thumbnail = the outline the recogniser matches against
+  const SPECIES = [
+    ["jellyfish", "Jellyfish"], ["turtle", "Sea turtle"], ["seahorse", "Seahorse"],
+    ["shark", "Shark"], ["sea_urchin", "Sea urchin"], ["octopus", "Octopus"],
+    ["angelfish", "Angelfish"], ["crab", "Crab"], ["manta_ray", "Manta ray"],
+    ["whale", "Whale"], ["pufferfish", "Pufferfish"], ["squid", "Squid"],
+  ];
+  const grid = document.getElementById("tpls");
+  for (const [id, label] of SPECIES) {
+    const a = document.createElement("a");
+    a.className = "tpl"; a.href = "templates/" + id + ".pdf"; a.download = "";
+    const img = document.createElement("img");
+    img.src = "outlines/" + id + ".png"; img.alt = ""; img.loading = "lazy";
+    const span = document.createElement("span"); span.textContent = label;
+    a.append(img, span); grid.appendChild(a);
+  }
+  // live count of the shared tank
+  fetch("tank/api/fish/manifest", { cache: "no-store" })
+    .then(r => r.json())
+    .then(list => {
+      const n = list.length;
+      document.getElementById("count").textContent = n ? n : "0";
+      if (!n) document.querySelector(".counter small").textContent = "fish so far: yours could be the first!";
+    })
+    .catch(() => { document.getElementById("count").textContent = "–"; });
+</script>
+</body>
+</html>

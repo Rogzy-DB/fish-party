@@ -1,0 +1,5 @@
+# The tank itself is Python stdlib only. These are for the recogniser
+# (cut a photographed drawing out and tell which of the 12 creatures it is)
+# and for painted fish (clip the painting to the creature's outline).
+numpy>=1.26
+opencv-contrib-python-headless>=4.9

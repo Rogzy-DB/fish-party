@@ -1,0 +1,324 @@
+{
+  "20260607-212025-53b4e2": {
+    "species": "jellyfish",
+    "confidence": 0.6369,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212027-59663b": {
+    "species": "octopus",
+    "confidence": 0.5381,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212028-29671f": {
+    "species": "whale",
+    "confidence": 0.6164,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212030-3d4729": {
+    "species": "crab",
+    "confidence": 0.882,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212031-802f1d": {
+    "species": "turtle",
+    "confidence": 0.5982,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212033-1f49f4": {
+    "species": "seahorse",
+    "confidence": 0.5922,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212034-6cce43": {
+    "species": "sea_urchin",
+    "confidence": 0.7833,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212037-85fd97": {
+    "species": "shark",
+    "confidence": 1.0,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212038-49d309": {
+    "species": "crab",
+    "confidence": 0.7556,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212039-8defc2": {
+    "species": "seahorse",
+    "confidence": 0.7981,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212041-d6d25b": {
+    "species": "angelfish",
+    "confidence": 0.7061,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212042-0443e2": {
+    "species": "manta_ray",
+    "confidence": 0.6568,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212044-c6a3ab": {
+    "species": "jellyfish",
+    "confidence": 0.7244,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212044-deb740": {
+    "species": "shark",
+    "confidence": 0.693,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212046-f4a50d": {
+    "species": "shark",
+    "confidence": 0.6384,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212047-3a83b2": {
+    "species": "squid",
+    "confidence": 0.8562,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212048-86951b": {
+    "species": "manta_ray",
+    "confidence": 0.595,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212049-9eddc4": {
+    "species": "seahorse",
+    "confidence": 0.6279,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212050-9eddc4": {
+    "species": "seahorse",
+    "confidence": 0.6279,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212051-1fad3a": {
+    "species": "shark",
+    "confidence": 0.6059,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212052-616586": {
+    "species": "crab",
+    "confidence": 0.9064,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212054-02c63d": {
+    "species": "squid",
+    "confidence": 0.58,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212055-fe9427": {
+    "species": "crab",
+    "confidence": 0.9031,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212057-27b9f4": {
+    "species": "crab",
+    "confidence": 0.8841,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212058-357709": {
+    "species": "angelfish",
+    "confidence": 0.5826,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212059-112f87": {
+    "species": "octopus",
+    "confidence": 0.6266,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212100-46314c": {
+    "species": "manta_ray",
+    "confidence": 0.9918,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212150-255a54": {
+    "species": "seahorse",
+    "confidence": 0.6482,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212151-d57ed1": {
+    "species": "angelfish",
+    "confidence": 0.5298,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212153-8bdd6e": {
+    "species": "octopus",
+    "confidence": 0.6354,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212154-d1316b": {
+    "species": "angelfish",
+    "confidence": 0.6182,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212202-b3211e": {
+    "species": "whale",
+    "confidence": 0.6898,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212204-d8f869": {
+    "species": "angelfish",
+    "confidence": 0.677,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212206-eeef17": {
+    "species": "pufferfish",
+    "confidence": 1.0,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212208-185995": {
+    "species": "shark",
+    "confidence": 0.6468,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212209-02c738": {
+    "species": "octopus",
+    "confidence": 0.5231,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212211-5856bb": {
+    "species": "turtle",
+    "confidence": 0.4447,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212212-efa758": {
+    "species": "manta_ray",
+    "confidence": 0.6453,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212214-9669b6": {
+    "species": "pufferfish",
+    "confidence": 0.6321,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212215-b23c89": {
+    "species": "squid",
+    "confidence": 0.8832,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212220-c99900": {
+    "species": "sea_urchin",
+    "confidence": 0.9063,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212222-e9a000": {
+    "species": "octopus",
+    "confidence": 0.5542,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212224-3d4970": {
+    "species": "manta_ray",
+    "confidence": 0.6481,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212225-b4c2da": {
+    "species": "turtle",
+    "confidence": 0.6455,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212228-a9034d": {
+    "species": "sea_urchin",
+    "confidence": 0.8298,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  },
+  "20260607-212230-288dc7": {
+    "species": "seahorse",
+    "confidence": 0.6152,
+    "status": "ok",
+    "rotation": 0,
+    "source": "party"
+  }
+}

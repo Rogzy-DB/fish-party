@@ -1,0 +1,25 @@
+# Fish Party behind Caddy (automatic HTTPS). Replace the domain and paths.
+fishparty.example.org {
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"      # the site embeds /party/ in an iframe
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+	request_body /tank/api/* {
+		max_size 17MB
+	}
+	redir /party /party/ 308
+	redir /tank /tank/ 308
+	handle_path /party/* {
+		reverse_proxy 127.0.0.1:8001
+	}
+	handle_path /tank/* {
+		reverse_proxy 127.0.0.1:8002
+	}
+	handle {
+		root * /srv/fish-party/site      # a copy of site/ with symlinks resolved (rsync -L)
+		file_server
+	}
+}

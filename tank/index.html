@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fish Party — the tank</title>
+<style>
+  html, body { margin: 0; padding: 0; overflow: hidden; height: 100%;
+    background: #01050f; color: #d4ecff;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+  #stage, #stage canvas { display: block; width: 100vw; height: 100vh; }
+  #stage canvas { cursor: none; }
+  .hud {
+    position: fixed; top: 14px; left: 14px;
+    background: rgba(3, 22, 44, 0.55);
+    border: 1px solid rgba(76, 212, 255, 0.35);
+    backdrop-filter: blur(8px);
+    padding: 6px 12px; border-radius: 999px;
+    font-size: 12px; letter-spacing: .08em;
+    pointer-events: none; z-index: 10; }
+  .hud .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: #2dd4bf; box-shadow: 0 0 8px #2dd4bf; margin-right: 6px;
+    vertical-align: middle; animation: pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .4; transform: scale(1.3); } }
+  .banner {
+    position: fixed; left: 50%; bottom: 28px; transform: translate(-50%, 60px);
+    background: linear-gradient(135deg, rgba(45,212,191,.9), rgba(76,212,255,.9));
+    color: #03091a; padding: 10px 22px; border-radius: 999px;
+    font-weight: 700; letter-spacing: .05em;
+    box-shadow: 0 10px 30px rgba(0,0,0,.4), 0 0 30px rgba(76,212,255,.3);
+    opacity: 0; transition: all .5s cubic-bezier(.2,.9,.2,1.2);
+    z-index: 10; pointer-events: none; }
+  .banner.show { opacity: 1; transform: translate(-50%, 0); }
+  .home-link {
+    position: fixed; bottom: 14px; left: 14px; z-index: 10;
+    background: rgba(3, 22, 44, 0.55);
+    color: #d4ecff; text-decoration: none;
+    border: 1px solid rgba(76, 212, 255, 0.35);
+    backdrop-filter: blur(8px);
+    padding: 7px 14px; border-radius: 999px;
+    font-size: 12px; letter-spacing: .08em; cursor: pointer;
+    transition: all .15s; }
+  .home-link:hover { background: rgba(76, 212, 255, 0.18); border-color: rgba(76, 212, 255, 0.7); }
+  .add-fish {
+    position: fixed; bottom: 14px; right: 14px; z-index: 10;
+    background: linear-gradient(135deg, rgba(45,212,191,.92), rgba(76,212,255,.92));
+    color: #03091a; text-decoration: none; font-weight: 700;
+    border: 0; backdrop-filter: blur(8px);
+    padding: 8px 16px; border-radius: 999px;
+    font-size: 12px; letter-spacing: .06em; cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0,0,0,.35); transition: transform .15s; }
+  .add-fish:hover { transform: translateY(-1px) scale(1.03); }
+  .sound {
+    position: fixed; top: 14px; right: 14px; z-index: 11; display: none;
+    width: 40px; height: 40px; border-radius: 50%; cursor: pointer;
+    background: rgba(3, 22, 44, 0.55); border: 1px solid rgba(76, 212, 255, 0.35);
+    backdrop-filter: blur(8px); color: #d4ecff; font-size: 18px; line-height: 1;
+    transition: all .15s; }
+  .sound:hover { background: rgba(76, 212, 255, 0.18); border-color: rgba(76, 212, 255, 0.7); }
+  /* tiny ⚙ settings entry — a sibling of the sound button, same treatment, sat
+     just to its left. The two small corner icons are the tank's whole chrome. */
+  .gear {
+    position: fixed; top: 14px; right: 62px; z-index: 11;
+    display: flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 50%; text-decoration: none;
+    background: rgba(3, 22, 44, 0.55); border: 1px solid rgba(76, 212, 255, 0.35);
+    backdrop-filter: blur(8px); color: #d4ecff; font-size: 18px; line-height: 1;
+    transition: all .15s; }
+  .gear:hover { background: rgba(76, 212, 255, 0.18); border-color: rgba(76, 212, 255, 0.7); }
+</style>
+<script>
+  // home = your own party (everything open) · public = the shared tank (owner
+  // pages behind a password) · showcase = read-only. serve.py fills this in.
+  window.TANK_MODE = "TANK_MODE_PLACEHOLDER";
+  document.documentElement.dataset.mode = window.TANK_MODE;
+  // ?embed: the tank inside another page (the showcase site) — art only, no chrome
+  if (new URLSearchParams(location.search).has("embed")) document.documentElement.dataset.embed = "1";
+</script>
+<style>
+  [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
+  [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only,
+  [data-embed] .hud, [data-embed] .home-link, [data-embed] .add-fish, [data-embed] .gear { display: none !important; }
+</style>
+</head>
+<body>
+  <div id="stage"></div>
+  <div class="hud">
+    <span class="dot"></span>
+    creatures: <span id="count">0</span> ·
+    <span id="fps" style="opacity:.7">--</span> fps ·
+    <span id="mempool-hud" style="opacity:0.5">₿ --</span>
+  </div>
+  <div class="banner" id="banner">tank</div>
+  <a class="home-link site-only" href="../">&larr; Fish Party</a>
+  <a class="add-fish guest-only" href="draw">＋ add a fish</a>
+  <a class="gear owner-only" href="settings" title="Settings">⚙</a>
+  <button class="sound" id="sound" title="ambient sound">🔈</button>
+
+  <!-- Ambient background loop (your own track). Drop a file at
+       static/audio/ambient.{mp3,m4a,ogg}; absent = silent, button hidden. -->
+  <audio id="ambient" loop preload="auto">
+    <source src="static/audio/ambient.mp4" type="audio/mp4">
+    <source src="static/audio/ambient.mp3" type="audio/mpeg">
+    <source src="static/audio/ambient.m4a" type="audio/mp4">
+    <source src="static/audio/ambient.ogg" type="audio/ogg">
+  </audio>
+  <script>
+  // Ambient sound is now driven by the SERVER settings (the phone-as-remote at
+  // /settings), not localStorage — so the phone steers the WALL's audio.
+  // tank.js polls /api/settings every 10s and calls window.__applyAudioSettings.
+  // The on-wall 🔊 button still works: it POSTs the toggle to the same store, so
+  // the wall and the phone stay in sync. Default = OFF (unmuted autoplay is
+  // unreliable; a projector kiosk stays silent until someone asks for sound).
+  (() => {
+    const audio = document.getElementById("ambient");
+    const btn = document.getElementById("sound");
+    let cur = { soundOn: false, volume: 0.6 };
+    let revealed = false;
+    const render = () => {
+      btn.textContent = (cur.soundOn && !audio.paused && !audio.muted) ? "🔊" : "🔈";
+    };
+    // reveal the control once a source loads (no file -> stays hidden/silent).
+    const reveal = () => { if (!revealed) { revealed = true; btn.style.display = "block"; } render(); };
+    if (audio.readyState >= 3) reveal();
+    else audio.addEventListener("canplay", reveal, { once: true });
+
+    // apply a settings state to the <audio> element (best-effort re: autoplay).
+    async function apply(soundOn, volume) {
+      if (typeof volume === "number" && !isNaN(volume)) {
+        cur.volume = Math.max(0, Math.min(1, volume));
+        audio.volume = cur.volume;
+      }
+      cur.soundOn = !!soundOn;
+      if (!cur.soundOn) { audio.pause(); return render(); }
+      audio.muted = false;
+      try { await audio.play(); }                     // sound autoplay (kiosk flag)
+      catch (e) {
+        audio.muted = true;                           // fall back to muted autoplay
+        try { await audio.play(); } catch (e2) {}
+        const unmute = () => {                         // …then unmute on first gesture
+          if (!cur.soundOn) return;
+          audio.muted = false; audio.play().catch(() => {}); render();
+          removeEventListener("pointerdown", unmute); removeEventListener("keydown", unmute);
+        };
+        addEventListener("pointerdown", unmute); addEventListener("keydown", unmute);
+      }
+      render();
+    }
+    window.__applyAudioSettings = apply;   // tank.js calls this each settings poll
+
+    // the on-wall button toggles the SERVER setting (POST), then applies locally
+    btn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const want = !cur.soundOn;
+      apply(want, cur.volume);                        // optimistic
+      if (window.TANK_MODE !== "home") return render();  // a visitor only mutes their own tab
+      try {
+        await fetch("api/settings", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ soundOn: want }),
+        });
+      } catch (err) { /* projector still plays; next poll reconciles */ }
+      render();
+    });
+  })();
+  </script>
+
+  <script>window.TANK_CONFIG = { MEMPOOL_API: "MEMPOOL_API_PLACEHOLDER" };</script>
+  <script src="static/vendor/pixi.min.js"></script>
+  <script src="static/js/boids.js"></script>
+  <script src="static/js/meshbody.js"></script>
+  <script src="static/js/mempool.js"></script>
+  <script src="static/js/scene.js"></script>
+  <script src="static/js/tank.js"></script>
+</body>
+</html>
