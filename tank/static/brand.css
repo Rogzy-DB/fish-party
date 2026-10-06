@@ -56,3 +56,10 @@ button.primary:not(:disabled), #send:not(:disabled), .go:not(:disabled) { color:
 }
 .site-foot a { display: inline-block; padding: 6px 0; }
 .resume .nav, a.nav { display: inline-block; padding: 8px 4px; }
+/* draw page on a real phone: the browser's own bars and the keyboard (typing the
+   fish's name) eat the bottom of a 100%-high screen, and the page cannot scroll
+   (body overflow:hidden) — the Swim! button became unreachable. Size to the
+   VISIBLE viewport and let the paint screen scroll as a last resort. */
+html, body { height: 100dvh; }
+#paint.screen { overflow-y: auto; }
+#paint .tools { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
