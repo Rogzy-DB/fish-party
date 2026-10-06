@@ -54,3 +54,5 @@ button.primary:not(:disabled), #send:not(:disabled), .go:not(:disabled) { color:
   .site-tabs { flex-wrap: nowrap; gap: 0; overflow-x: auto; scrollbar-width: none; }
   .site-tabs a { font-size: .8rem; padding: 6px 6px; }
 }
+.site-foot a { display: inline-block; padding: 6px 0; }
+.resume .nav, a.nav { display: inline-block; padding: 8px 4px; }

@@ -241,3 +241,5 @@ ol.timeline > li.with-media { display: grid; grid-template-columns: 1fr; gap: 16
   .media .water .swim { animation: none; }
   .slides img { animation: none; } .slides img:first-child { opacity: 1; }
 }
+/* footer links: a finger-sized tap area on phones */
+footer.end a { display: inline-block; padding: 6px 0; }

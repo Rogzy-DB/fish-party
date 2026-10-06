@@ -79,6 +79,11 @@
 <style>
   [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
   [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only,
+  .credits { position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 5; white-space: nowrap;
+    font: 11px/1.4 system-ui, sans-serif; color: rgba(220, 240, 255, .55); }
+  .credits a { color: rgba(220, 240, 255, .75); }
+  @media (max-width: 640px) { .credits { bottom: 58px; } }
+  [data-embed] .credits,
   [data-embed] .hud, [data-embed] .home-link, [data-embed] .add-fish, [data-embed] .gear { display: none !important; }
 </style>
 </head>
@@ -92,6 +97,7 @@
   </div>
   <div class="banner" id="banner">tank</div>
   <a class="home-link site-only" href="SITE_URL_PLACEHOLDER">&larr; Fish Party</a>
+  <footer class="credits site-only">© 2026 Rogzy · MIT licence · <a href="SITE_URL_PLACEHOLDER">Fish Party</a> by Rogzy &amp; Luna</footer>
   <a class="add-fish guest-only" href="draw">＋ add a fish</a>
   <a class="gear owner-only" href="settings" title="Settings">⚙</a>
   <button class="sound" id="sound" title="ambient sound">🔈</button>
@@ -99,10 +105,7 @@
   <!-- Ambient background loop (your own track). Drop a file at
        static/audio/ambient.{mp3,m4a,ogg}; absent = silent, button hidden. -->
   <audio id="ambient" loop preload="auto">
-    <source src="static/audio/ambient.mp4" type="audio/mp4">
-    <source src="static/audio/ambient.mp3" type="audio/mpeg">
-    <source src="static/audio/ambient.m4a" type="audio/mp4">
-    <source src="static/audio/ambient.ogg" type="audio/ogg">
+    <!--AMBIENT_SOURCES--><!-- serve.py lists only the files that exist: no 404 per missing format -->
   </audio>
   <script>
   // Ambient sound is now driven by the SERVER settings (the phone-as-remote at

@@ -325,6 +325,16 @@ def cached_fetch(url):
     return res
 
 
+AMBIENT_TYPES = [("mp4", "audio/mp4"), ("mp3", "audio/mpeg"), ("m4a", "audio/mp4"), ("ogg", "audio/ogg")]
+
+
+def ambient_sources():
+    """<source> tags for the ambient loops actually present in static/audio/."""
+    return "".join('<source src="static/audio/ambient.%s" type="%s">' % (ext, mime)
+                   for ext, mime in AMBIENT_TYPES
+                   if os.path.isfile(os.path.join(HERE, "static", "audio", "ambient." + ext)))
+
+
 BUSY = "The tank can't take new fish right now. Please try again later."
 
 
@@ -583,6 +593,8 @@ class Handler(BaseHTTPRequestHandler):
         if fs.endswith("index.html"):
             origin = ""  # same-origin: JS builds full paths off this
             data = data.replace(b"MEMPOOL_API_PLACEHOLDER", origin.encode())
+        if fs.endswith("index.html"):
+            data = data.replace(b"<!--AMBIENT_SOURCES-->", ambient_sources().encode())
         if fs.endswith(".html"):
             data = data.replace(b"TANK_MODE_PLACEHOLDER", MODE.encode())
             data = data.replace(b"SITE_URL_PLACEHOLDER", SITE_URL.encode())
