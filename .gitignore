@@ -8,3 +8,4 @@ demo/*/settings.json.tmp
 demo/*/report/
 # your own ambient music (never commit a copyrighted track)
 tank/static/audio/
+dist/

@@ -12,6 +12,6 @@ COPY demo demo
 COPY deploy/run-tanks.sh /run-tanks.sh
 RUN useradd --system --uid 10001 fish && mkdir -p /data && chown fish /data
 USER fish
-ENV TRUST_PROXY=1 PYTHONUNBUFFERED=1
+ENV TRUST_PROXY=1 PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1
 EXPOSE 8001 8002
 CMD ["sh", "/run-tanks.sh"]

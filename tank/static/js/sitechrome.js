@@ -37,6 +37,6 @@
       '<a href="' + GH + '">GitHub</a></nav>' +
       '<p>Inspired by <a href="https://futurepark.teamlab.art/en/playinstallations/sketch_aquarium/">teamLab\'s Sketch Aquarium</a>: go see the real one if you ever can.<br>' +
       "Code under the MIT licence · party drawings under CC BY-NC 4.0 · bubbles from " +
-      '<a href="https://mempool.space">mempool.space</a>.<br>Made by Rogzy &amp; Luna</p>';
+      '<a href="https://mempool.space">mempool.space</a>.<br>© 2026 Rogzy · Made by Rogzy &amp; Luna · <a href="https://rogzy.org">rogzy.org</a></p>';
   }
 })();
