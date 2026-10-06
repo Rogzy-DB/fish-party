@@ -5,10 +5,16 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Fish Party — the tank</title>
 <style>
-  html, body { margin: 0; padding: 0; overflow: hidden; height: 100%;
+  /* No overflow:hidden on the root: on a phone that also kills pull-to-refresh.
+     The stage is exactly the VISIBLE screen (dvh), so there is nothing to scroll
+     anyway, and the bottom buttons never sit under the browser's own bar. */
+  html, body { margin: 0; padding: 0; height: 100%;
     background: #01050f; color: #d4ecff;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
-  #stage, #stage canvas { display: block; width: 100vw; height: 100vh; }
+  #stage, #stage canvas { display: block; width: 100%; height: 100vh; height: 100dvh; }
+  /* PixiJS sets touch-action:none inline; a vertical swipe goes to the browser
+     (pull-to-refresh), a tap still feeds the fish */
+  #stage canvas { touch-action: pan-y !important; }
   #stage canvas { cursor: none; }
   .hud {
     position: fixed; top: 14px; left: 14px;

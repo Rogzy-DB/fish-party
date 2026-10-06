@@ -47,8 +47,7 @@ button.primary:not(:disabled), #send:not(:disabled), .go:not(:disabled) { color:
 [data-mode="public"] .topbar .home, [data-mode="showcase"] .topbar .home { display: none; }
 .topbar { position: static; }                         /* the transparent bar must not float over the cards */
 .site-head, .site-foot { width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; }
-/* draw page: the list scrolls inside #pick; keep that box full width so its
-   scrollbar sits at the window's edge like a normal page, content centred */
+/* draw page: the pick screen is full width, its content centred */
 #pick.screen { max-width: none; padding-left: max(14px, calc((100% - 720px) / 2)); padding-right: max(14px, calc((100% - 720px) / 2)); }
 @media (max-width: 560px) {
   .site-tabs { flex-wrap: nowrap; gap: 0; overflow-x: auto; scrollbar-width: none; }
@@ -56,10 +55,6 @@ button.primary:not(:disabled), #send:not(:disabled), .go:not(:disabled) { color:
 }
 .site-foot a { display: inline-block; padding: 6px 0; }
 .resume .nav, a.nav { display: inline-block; padding: 8px 4px; }
-/* draw page on a real phone: the browser's own bars and the keyboard (typing the
-   fish's name) eat the bottom of a 100%-high screen, and the page cannot scroll
-   (body overflow:hidden) — the Swim! button became unreachable. Size to the
-   VISIBLE viewport and let the paint screen scroll as a last resort. */
-html, body { height: 100dvh; }
+/* draw page on a real phone: the paint screen may scroll if the keyboard eats it */
 #paint.screen { overflow-y: auto; }
 #paint .tools { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
