@@ -244,3 +244,7 @@ ol.timeline > li.with-media { display: grid; grid-template-columns: 1fr; gap: 16
 }
 /* footer links: a finger-sized tap area on phones */
 footer.end a { display: inline-block; padding: 6px 0; }
+/* the embedded tanks are a view: let a finger on them scroll the page (PixiJS sets
+   touch-action:none on its canvas, which froze the page on phones). The .tag link
+   on top stays the way in. */
+.window iframe { pointer-events: none; }
