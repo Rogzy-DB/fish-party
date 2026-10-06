@@ -77,12 +77,12 @@
   if (new URLSearchParams(location.search).has("embed")) document.documentElement.dataset.embed = "1";
 </script>
 <style>
-  [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
-  [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only,
   .credits { position: fixed; left: 50%; bottom: 10px; transform: translateX(-50%); z-index: 5; white-space: nowrap;
     font: 11px/1.4 system-ui, sans-serif; color: rgba(220, 240, 255, .55); }
   .credits a { color: rgba(220, 240, 255, .75); }
-  @media (max-width: 640px) { .credits { bottom: 58px; } }
+  @media (max-width: 640px) { .credits { bottom: 62px; } }
+  [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
+  [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only,
   [data-embed] .credits,
   [data-embed] .hud, [data-embed] .home-link, [data-embed] .add-fish, [data-embed] .gear { display: none !important; }
 </style>
