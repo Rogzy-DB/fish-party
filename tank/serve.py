@@ -5,8 +5,10 @@ Fish Party — the tank server. Python stdlib only (the recognizer adds OpenCV).
 Serves the tank page, the guests' fish, the phone pages (draw / upload /
 settings / review) and, so the browser never hits a CORS wall, proxies the two
 mempool endpoints the bubbles need:
-    GET /api/mempool/recent      -> <MEMPOOL_API>/api/v1/mempool/recent
-    GET /api/mempool/tip-height  -> <MEMPOOL_API>/api/v1/blocks/tip/height
+    GET /api/mempool/recent      -> <MEMPOOL_API>/api/mempool/recent
+    GET /api/mempool/tip-height  -> <MEMPOOL_API>/api/blocks/tip/height
+(a public mempool site serves /api/...; a bare mempool backend only /api/v1/...:
+each path is tried in that order)
 If the mempool API is unreachable the renderer falls back to mock bubbles.
 
 Three modes (TANK_MODE), one codebase:
@@ -25,6 +27,8 @@ Configuration (environment):
   ADMIN_PASSWORD  required for the owner pages in public mode
   MEMPOOL_API     default https://mempool.space
   TRUST_PROXY=1   take the visitor IP from X-Forwarded-For (behind Caddy/nginx)
+  SITE_URL        where the showcase website lives, for the header and footer the
+                  public phone pages show (default ../ = one level up, same domain)
 
 Usage:
     python3 serve.py [--port 8785] [--host 127.0.0.1] [--mempool URL]
@@ -47,6 +51,7 @@ REPO_ROOT = os.path.abspath(os.path.join(HERE, ".."))
 DEFAULT_MEMPOOL = os.environ.get("MEMPOOL_API", "https://mempool.space")
 
 MODE = os.environ.get("TANK_MODE", "home")
+SITE_URL = os.environ.get("SITE_URL", "../")
 if MODE not in ("home", "public", "showcase"):
     sys.exit("TANK_MODE must be home, public or showcase (got %r)" % MODE)
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "")
@@ -320,6 +325,25 @@ def cached_fetch(url):
     return res
 
 
+BUSY = "The tank can't take new fish right now. Please try again later."
+
+
+def busy_error(what, exc):
+    """A crash while taking in a fish: the visitor gets a plain sentence, the
+    details go to the server log (they can name files and modules)."""
+    print("fish-party: %s ingest failed: %r" % (what, exc), file=sys.stderr, flush=True)
+    return {"ok": False, "error": BUSY}
+
+
+def mempool_fetch(base, path):
+    """(status, bytes) for a mempool API path: /api/<path> first (mempool.space and
+    any mempool website), then /api/v1/<path> (a mempool backend reached directly)."""
+    code, body = cached_fetch(base + "/api/" + path)
+    if code != 200:
+        code, body = cached_fetch(base + "/api/v1/" + path)
+    return code, body
+
+
 class Handler(BaseHTTPRequestHandler):
     mempool_api = DEFAULT_MEMPOOL
 
@@ -338,8 +362,8 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def _proxy(self, upstream, ctype):
-        code, body = cached_fetch(upstream)
+    def _proxy(self, path, ctype):
+        code, body = mempool_fetch(self.mempool_api, path)
         # 503 -> renderer treats as disconnected and mocks
         self._send(code, body, ctype if code == 200 else "application/json")
 
@@ -386,16 +410,16 @@ class Handler(BaseHTTPRequestHandler):
 
         # --- mempool proxy ---
         if path == "/api/mempool/recent":
-            return self._proxy(self.mempool_api + "/api/v1/mempool/recent", "application/json")
+            return self._proxy("mempool/recent", "application/json")
         if path == "/api/mempool/tip-height":
-            return self._proxy(self.mempool_api + "/api/v1/blocks/tip/height", "text/plain")
+            return self._proxy("blocks/tip/height", "text/plain")
 
         # --- health: {rev, summary}; rev = block height, summary = a short line
         # for a dashboard tile or an uptime check ---
         if path == "/status.json":
             n = len(build_manifest())
             rev = 0
-            code, body = cached_fetch(self.mempool_api + "/api/v1/blocks/tip/height")
+            code, body = mempool_fetch(self.mempool_api, "blocks/tip/height")
             if code == 200:
                 try:
                     rev = int(body.decode().strip())
@@ -561,6 +585,7 @@ class Handler(BaseHTTPRequestHandler):
             data = data.replace(b"MEMPOOL_API_PLACEHOLDER", origin.encode())
         if fs.endswith(".html"):
             data = data.replace(b"TANK_MODE_PLACEHOLDER", MODE.encode())
+            data = data.replace(b"SITE_URL_PLACEHOLDER", SITE_URL.encode())
         self._send(200, data, ctype, extra={"Accept-Ranges": "bytes"})
 
     def _read_body(self):
@@ -615,7 +640,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 res = get_ingest().ingest_photo(body, name, hold=hold)
             except Exception as e:
-                res = {"ok": False, "error": "ingest failed: %s" % e}
+                res = busy_error("upload", e)
             return self._send(200 if res.get("ok") else 422,
                               json.dumps(res), "application/json")
 
@@ -639,7 +664,7 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 res = get_ingest().ingest_drawing(body, species, name, hold=hold)
             except Exception as e:
-                res = {"ok": False, "error": "draw ingest failed: %s" % e}
+                res = busy_error("draw", e)
             return self._send(200 if res.get("ok") else 422,
                               json.dumps(res), "application/json")
 

@@ -1,0 +1,5 @@
+# Fish Party welcomes every reader, people and AI crawlers alike.
+User-agent: *
+Allow: /
+
+Sitemap: https://fishparty.rogzy.org/sitemap.xml

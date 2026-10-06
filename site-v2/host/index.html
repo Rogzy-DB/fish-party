@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Host a Fish Party — the guide</title>
+<meta name="description" content="Put a Fish Party on the wall at your birthday, wedding or classroom: what it looks like, how it works, a step-by-step setup, and a ready prompt for your AI assistant.">
+<meta property="og:title" content="Host a Fish Party">
+<meta property="og:image" content="../img/tank.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐠</text></svg>">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="brand" href="../">🐠 Fish Party</a>
+    <nav class="tabs">
+      <a href="../">Home</a>
+      <a href="../how/">How it works</a>
+      <a href="./" aria-current="page">Host</a>
+      <a href="../collective/">Collective tank</a>
+      <a href="../about/">About</a>
+    </nav>
+  </header>
+
+  <div class="hero" style="text-align:left; padding-top:20px">
+    <div class="kicker">The guide</div>
+    <h1 style="font-size:clamp(2rem,6vw,3.4rem)">Host your own <em>Fish Party</em></h1>
+    <p class="lead" style="margin-left:0">Birthdays, weddings, a classroom, a museum corner. Guests colour sea creatures, and a minute later they swim on your wall. It's free, it runs on one laptop, and nothing needs the internet except the Bitcoin bubbles.</p>
+    <ul class="toc">
+      <li><a href="#setup">Step by step</a></li>
+      <li><a href="#ai">For your AI</a></li>
+      <li><a href="../how/">How it works →</a></li>
+    </ul>
+  </div>
+
+  <section id="setup" class="chapter">
+        <h2>Step by step</h2>
+    <p class="intro">Do it the day before: a test run on the real wall saves the evening.</p>
+    <ol class="guide">
+      <li>
+        <h3>Gather the kit</h3>
+        <ul>
+          <li><b>A computer</b> to run the tank: any laptop, or a Raspberry Pi 5.</li>
+          <li><b>A screen on the wall</b>: a projector (a big pale wall in a dim corner is best) or a TV with a browser.</li>
+          <li><b>Wi-Fi</b> shared by the computer and the guests' phones.</li>
+          <li><b>For paper</b>: a printer, about 2 sheets per guest, pencils or felt pens, a table.</li>
+        </ul>
+      </li>
+      <li>
+        <h3>Print the templates</h3>
+        <p>A4, “fit to page”. Print the 12 in one go, or only the favourites.</p>
+        <div class="grid12">
+      <a class="tpl" href="../templates/jellyfish.pdf" download><img src="../outlines/jellyfish.png" alt="" loading="lazy"><span>Jellyfish</span></a>
+      <a class="tpl" href="../templates/turtle.pdf" download><img src="../outlines/turtle.png" alt="" loading="lazy"><span>Sea turtle</span></a>
+      <a class="tpl" href="../templates/seahorse.pdf" download><img src="../outlines/seahorse.png" alt="" loading="lazy"><span>Seahorse</span></a>
+      <a class="tpl" href="../templates/shark.pdf" download><img src="../outlines/shark.png" alt="" loading="lazy"><span>Shark</span></a>
+      <a class="tpl" href="../templates/sea_urchin.pdf" download><img src="../outlines/sea_urchin.png" alt="" loading="lazy"><span>Sea urchin</span></a>
+      <a class="tpl" href="../templates/octopus.pdf" download><img src="../outlines/octopus.png" alt="" loading="lazy"><span>Octopus</span></a>
+      <a class="tpl" href="../templates/angelfish.pdf" download><img src="../outlines/angelfish.png" alt="" loading="lazy"><span>Angelfish</span></a>
+      <a class="tpl" href="../templates/crab.pdf" download><img src="../outlines/crab.png" alt="" loading="lazy"><span>Crab</span></a>
+      <a class="tpl" href="../templates/manta_ray.pdf" download><img src="../outlines/manta_ray.png" alt="" loading="lazy"><span>Manta ray</span></a>
+      <a class="tpl" href="../templates/whale.pdf" download><img src="../outlines/whale.png" alt="" loading="lazy"><span>Whale</span></a>
+      <a class="tpl" href="../templates/pufferfish.pdf" download><img src="../outlines/pufferfish.png" alt="" loading="lazy"><span>Pufferfish</span></a>
+      <a class="tpl" href="../templates/squid.pdf" download><img src="../outlines/squid.png" alt="" loading="lazy"><span>Squid</span></a>
+    </div>
+        <div class="ctas" style="margin-top:14px"><a class="btn primary" href="../templates/all-12-templates.pdf" download>⬇ All 12 in one PDF</a></div>
+      </li>
+      <li>
+        <h3>Install and start the tank</h3>
+        <p>You need Python 3 and git. In a terminal:</p>
+<pre><span class="c"># get it (once)</span>
+git clone https://github.com/Rogzy-DB/fish-party
+cd fish-party
+python3 -m venv .venv &amp;&amp; .venv/bin/pip install -r requirements.txt
+
+<span class="c"># start the tank on your network</span>
+.venv/bin/python tank/serve.py --host 0.0.0.0 --port 8000</pre>
+        <p>Not comfortable with a terminal? Skip to <a href="#ai">the next part</a> and let your AI do it.</p>
+      </li>
+      <li>
+        <h3>Choose where the Bitcoin bubbles come from</h3>
+        <ul>
+          <li><b>Public mempool</b> (default, nothing to do): the tank reads <a href="https://mempool.space">mempool.space</a> by itself.</li>
+          <li><b>Your own node</b>: start the tank with <code>MEMPOOL_API=http://&lt;your-mempool&gt;</code>.</li>
+          <li><b>No internet</b>: random bubbles take over by themselves. They look the same.</li>
+        </ul>
+      </li>
+      <li>
+        <h3>Put the tank on the wall</h3>
+        <p>On the projector or TV browser, open <code>http://&lt;your-computer&gt;:8000/</code> and go full screen (F11).</p>
+      </li>
+      <li>
+        <h3>Let the guests in</h3>
+        <ul>
+          <li><b>Paper</b>: photograph sheets at <code>http://&lt;your-computer&gt;:8000/upload</code>, outline fully in frame, on a light background.</li>
+          <li><b>Painting on a phone</b> (optional): <code>/draw</code>. Print it as a QR code and stick it on the table.</li>
+        </ul>
+      </li>
+      <li>
+        <h3>Steer it from your phone</h3>
+        <ul>
+          <li><code>/settings</code>: fish size, sound, hide a fish (oops, that one was a shopping list).</li>
+          <li><code>/review</code>: the paper drawings the tank wasn't sure about. One tap picks the creature.</li>
+          <li>Smart-TV browsers have little memory: past ~100 fish, drive the wall from a laptop.</li>
+        </ul>
+      </li>
+      <li>
+        <h3>Afterwards, keep the tank</h3>
+        <p>Everything lives in the <code>data/</code> folder. Keep it: it makes a lovely read-only display for the next family dinner, or you can put it online.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="ai" class="chapter">
+        <div class="ai">
+      <h2>Or let your AI set it up</h2>
+      <p class="intro">Copy this into ChatGPT, Claude or any assistant that can use your computer. The repository carries an <code>AGENTS.md</code> file written for it: what the project is, how to install it, how to check it works.</p>
+      <div class="prompt">
+        <button class="copy" id="copy" type="button">Copy</button>
+<pre id="prompt-text">I want to host a Fish Party at my party: https://github.com/Rogzy-DB/fish-party
+
+1. Read its AGENTS.md and explain to me, in plain words, how it works.
+2. Check that my computer has what it needs (Python 3, git), and tell me before you install anything.
+3. Install it and start the tank on my local network.
+4. Give me the two addresses: the one for the wall (projector or TV) and the one for my guests' phones, as a QR code if you can.
+5. Tell me how to stop it, and where the fish are saved.</pre>
+      </div>
+    </div>
+  </section>
+
+  <footer class="end">
+    <div class="fish-line">🐟 🐠 🦈 🐙 🐡</div>
+    <nav class="foot-links"><a href="../how/">How it works</a> · <a href="../host/">Host your own</a> · <a href="../collective/">Collective tank</a> · <a href="../about/">About</a> · <a href="https://github.com/Rogzy-DB/fish-party">GitHub</a></nav>
+    Inspired by <a href="https://futurepark.teamlab.art/en/playinstallations/sketch_aquarium/">teamLab's Sketch Aquarium</a>: go see the real one if you ever can.<br>
+    Code under the MIT licence · party drawings under CC BY-NC 4.0 · bubbles from <a href="https://mempool.space">mempool.space</a>.<br>
+    Made by Rogzy &amp; Luna
+  </footer>
+
+</div>
+<script>
+  const btn = document.getElementById("copy");
+  btn.addEventListener("click", () => {
+    const text = document.getElementById("prompt-text").textContent;
+    navigator.clipboard.writeText(text)
+      .then(() => { btn.textContent = "Copied ✓"; setTimeout(() => btn.textContent = "Copy", 1800); })
+      .catch(() => { btn.textContent = "Select and copy"; });
+  });
+</script>
+</body>
+</html>

@@ -97,7 +97,17 @@ class Proxy(BaseHTTPRequestHandler):
             path += "index.html"
         fs = os.path.realpath(os.path.join(SITE, path.lstrip("/")))
         if not (fs.startswith(SITE) or fs.startswith(ROOT)) or not os.path.isfile(fs):
-            return self.send_error(404)
+            page = os.path.join(SITE, "404.html")   # the site's own "lost at sea" page, as Caddy serves it
+            if not os.path.isfile(page):
+                return self.send_error(404)
+            with open(page, "rb") as f:
+                data = f.read()
+            self.send_response(404)
+            self.send_header("Content-Type", "text/html; charset=utf-8")
+            self.send_header("Content-Length", str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+            return
         with open(fs, "rb") as f:
             data = f.read()
         self.send_response(200)
@@ -110,7 +120,11 @@ class Proxy(BaseHTTPRequestHandler):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8810)
+    ap.add_argument("--host", default="127.0.0.1", help="address to listen on (default: this machine only)")
+    ap.add_argument("--site", default="site", help="folder of the showcase site, relative to the repo (default: site)")
     args = ap.parse_args()
+    global SITE
+    SITE = os.path.join(ROOT, args.site)
 
     # the party tank runs on a COPY of the demo, so nothing writes into the repo
     party = os.path.join(ROOT, "data", "party")
@@ -123,8 +137,8 @@ def main():
     procs = [start_tank("showcase", party, p1), start_tank("public", commons, p2)]
     Proxy.routes = {"/party/": p1, "/tank/": p2}
     time.sleep(0.5)
-    srv = ThreadingHTTPServer(("127.0.0.1", args.port), Proxy)
-    print("Fish Party: http://127.0.0.1:%d/" % args.port)
+    srv = ThreadingHTTPServer((args.host, args.port), Proxy)
+    print("Fish Party: http://%s:%d/" % (args.host, args.port))
     try:
         srv.serve_forever()
     except KeyboardInterrupt:

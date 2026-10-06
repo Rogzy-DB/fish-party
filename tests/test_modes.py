@@ -43,7 +43,7 @@ def free_port():
 class Tank:
     """A serve.py process in one mode, on a fresh data dir with one demo fish."""
 
-    def __init__(self, mode, password=""):
+    def __init__(self, mode, password="", extra_env=None):
         self.data = tempfile.mkdtemp(prefix="fishparty-test-")
         os.makedirs(os.path.join(self.data, "fish"))
         with open(os.path.join(DEMO, "labels.json")) as f:
@@ -58,6 +58,7 @@ class Tank:
         env = dict(os.environ, FISH_DATA=self.data, TANK_MODE=mode,
                    ADMIN_PASSWORD=password, SUBMIT_MAX="3",
                    MEMPOOL_API="http://127.0.0.1:9")   # unreachable on purpose
+        env.update(extra_env or {})
         self.proc = subprocess.Popen([sys.executable, SERVE, "--port", str(self.port)],
                                      env=env, stdout=subprocess.DEVNULL,
                                      stderr=subprocess.DEVNULL)
@@ -117,6 +118,26 @@ class HomeMode(unittest.TestCase):
         self.assertEqual((code, j["status"]), (200, "ok"))
         ids = [f["id"] for f in self.t.json("/api/fish/manifest")[1]]
         self.assertIn(j["id"], ids)
+
+
+class BrokenRecognizer(unittest.TestCase):
+    """The recognizer crashes (here: OpenCV missing): the visitor gets a plain
+    sentence, never the Python error, which can name files and modules."""
+    def setUp(self):
+        self.fake = tempfile.mkdtemp(prefix="fishparty-nocv-")
+        with open(os.path.join(self.fake, "cv2.py"), "w") as f:
+            f.write("raise ImportError(\"No module named 'cv2'\")\n")
+        self.t = Tank("public", password="s3cret", extra_env={"PYTHONPATH": self.fake})
+
+    def tearDown(self):
+        self.t.close()
+        shutil.rmtree(self.fake, ignore_errors=True)
+
+    def test_plain_message(self):
+        code, j = self.t.draw()
+        self.assertFalse(j["ok"])
+        self.assertIn("can't take new fish right now", j["error"])
+        self.assertNotIn("cv2", j["error"])
 
 
 class PublicMode(unittest.TestCase):

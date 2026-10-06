@@ -1,0 +1,16 @@
+# Fish Party
+
+> Colour a fish, watch it swim. An aquarium where every creature was drawn by someone: guests colour one of 12 sea creatures on a paper sheet (or paint one on a phone), and it swims on a projected wall among bubbles that are live Bitcoin transactions. Free and open source (MIT), runs on one laptop. Inspired by teamLab's Sketch Aquarium, not affiliated with it. Made by Rogzy & Luna.
+
+## Pages
+
+- [Home](https://fishparty.rogzy.org/): what it is, our party's tank live
+- [How it works](https://fishparty.rogzy.org/how/): draw your fish, watch it swim; the 12 creatures, the six backgrounds, the Bitcoin bubbles
+- [Host your own](https://fishparty.rogzy.org/host/): step-by-step setup for a party, and a prompt for an AI assistant
+- [Collective tank](https://fishparty.rogzy.org/collective/): one shared aquarium anyone can add a fish to (each fish is checked by a human first)
+- [About](https://fishparty.rogzy.org/about/): the story, the teamLab inspiration, licences
+
+## For an AI helping someone host a party
+
+- [The code](https://github.com/Rogzy-DB/fish-party): read `AGENTS.md` first, it explains how to install, start and check the tank
+- [The 12 templates](https://fishparty.rogzy.org/templates/all-12-templates.pdf): A4 colouring sheets in one PDF

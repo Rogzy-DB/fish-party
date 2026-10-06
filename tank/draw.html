@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="fr">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
@@ -102,7 +102,7 @@
   .go {
     width: 100%; margin-top: 10px; padding: 15px; font-size: 1.1rem;
     border: 0; border-radius: var(--radius, 12px); background: var(--accent);
-    color: #fff; font-weight: 700; font-family: inherit; cursor: pointer;
+    color: #2a1d00; font-weight: 800; font-family: inherit; cursor: pointer;
   }
   .go:disabled { background: #29425c; color: #7d94ab; }
   .namein {
@@ -140,17 +140,20 @@
   // home = your own party (everything open) · public = the shared tank (owner
   // pages behind a password) · showcase = read-only. serve.py fills this in.
   window.TANK_MODE = "TANK_MODE_PLACEHOLDER";
+  window.SITE_URL = "SITE_URL_PLACEHOLDER";
   document.documentElement.dataset.mode = window.TANK_MODE;
 </script>
 <style>
   [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
   [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only { display: none !important; }
 </style>
+<link rel="stylesheet" href="static/brand.css">
 </head>
 <body>
 
 <!-- ---------- 1. pick a species ---------- -->
 <section class="screen on" id="pick">
+  <header id="site-head"></header>
   <div class="topbar">
     <h1>✏️ Draw a fish</h1>
     <a class="home" href="./" title="The tank">🐠</a>
@@ -168,6 +171,7 @@
   <div class="links">
     <a class="nav" href="./">🐠 See the tank</a>
   </div>
+  <footer id="site-foot"></footer>
 </section>
 
 <!-- ---------- 2. paint ---------- -->
@@ -249,6 +253,8 @@
   const ctx = paper.getContext("2d", { willReadFrequently: false });
 
   let color = COLORS[0], size = SIZES[1];
+  let fillMode = false;           // 🪣: a tap fills the whole zone inside the outline
+  let artImg = null;              // the line art at full size: the fill's walls
   let history = [], drawing = false, last = null;
 
   // ---------------- autosave: don't lose an in-progress drawing ----------------
@@ -303,7 +309,7 @@
                   "px;height:" + (6 + i * 6) + 'px"></span>';
     b.setAttribute("aria-pressed", String(s === size));
     b.addEventListener("click", () => {
-      size = s; color = color === "erase" ? COLORS[0] : color;
+      size = s; fillMode = false; color = color === "erase" ? COLORS[0] : color;
       [...sz.children].forEach((el) => el.setAttribute("aria-pressed", el === b));
       syncSwatches();
     });
@@ -312,13 +318,24 @@
   const eraser = document.createElement("button");
   eraser.type = "button"; eraser.textContent = "🧽";
   eraser.addEventListener("click", () => {
-    color = "erase";
+    color = "erase"; fillMode = false;
     [...sw.children].forEach((el) => el.setAttribute("aria-pressed", "false"));
     eraser.setAttribute("aria-pressed", "true");
+    bucket.setAttribute("aria-pressed", "false");
   });
   sz.appendChild(eraser);
+  const bucket = document.createElement("button");
+  bucket.type = "button"; bucket.textContent = "🪣"; bucket.title = "Fill a whole zone";
+  bucket.addEventListener("click", () => {
+    fillMode = true;
+    if (color === "erase") color = COLORS[0];
+    [...sz.children].forEach((el) => el.setAttribute("aria-pressed", String(el === bucket)));
+    [...sw.children].forEach((el, i) => el.setAttribute("aria-pressed", String(COLORS[i] === color)));
+  });
+  sz.appendChild(bucket);
   function syncSwatches() {
     eraser.setAttribute("aria-pressed", String(color === "erase"));
+    bucket.setAttribute("aria-pressed", String(fillMode));
   }
 
   // Fit the stack to the line art's own aspect ratio inside the available box.
@@ -347,6 +364,7 @@
       history = []; $("undo").disabled = true;
       layout(img.width, img.height);
       window.__layout = () => layout(img.width, img.height);
+      artImg = img;
       if (onReady) onReady();
     };
     img.src = "static/lineart/" + id + ".png";
@@ -379,8 +397,65 @@
     ctx.lineWidth = size * (paper.width / (stack.clientWidth || paper.width));
   }
 
+  // Fill the zone under the tap: every pixel reachable from it without crossing
+  // the outline (or a different colour already painted). The zone then grows 2px
+  // so it tucks under the line instead of leaving a white rim.
+  function hexRgb(c) {
+    const t = document.createElement("canvas").getContext("2d");
+    t.fillStyle = c; const h = t.fillStyle;      // normalised to #rrggbb
+    return [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+  }
+  function fillAt(pt) {
+    const W = paper.width, H = paper.height;
+    const x0 = Math.floor(pt.x), y0 = Math.floor(pt.y);
+    if (!artImg || x0 < 0 || y0 < 0 || x0 >= W || y0 >= H) return false;
+    const off = document.createElement("canvas"); off.width = W; off.height = H;
+    const octx = off.getContext("2d"); octx.drawImage(artImg, 0, 0, W, H);
+    const wall = octx.getImageData(0, 0, W, H).data;
+    const img = ctx.getImageData(0, 0, W, H), px = img.data;
+    const k0 = (y0 * W + x0) * 4;
+    if (wall[k0 + 3] > 80) return false;          // tapped right on the line
+    const r0 = px[k0], g0 = px[k0 + 1], b0 = px[k0 + 2], a0 = px[k0 + 3];
+    const same = (k) => wall[k + 3] <= 80 &&
+      Math.abs(px[k] - r0) + Math.abs(px[k + 1] - g0) + Math.abs(px[k + 2] - b0) + Math.abs(px[k + 3] - a0) < 90;
+    const mask = new Uint8Array(W * H), stackXY = [x0, y0];
+    while (stackXY.length) {
+      const y = stackXY.pop(), x = stackXY.pop();
+      let l = x; while (l > 0 && !mask[y * W + l - 1] && same((y * W + l - 1) * 4)) l--;
+      let r = x; while (r < W - 1 && !mask[y * W + r + 1] && same((y * W + r + 1) * 4)) r++;
+      for (let i = l; i <= r; i++) {
+        mask[y * W + i] = 1;
+        for (const ny of [y - 1, y + 1]) {
+          if (ny < 0 || ny >= H) continue;
+          const j = ny * W + i;
+          if (!mask[j] && same(j * 4)) stackXY.push(i, ny);
+        }
+      }
+    }
+    const [cr, cg, cb] = hexRgb(color);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let hit = false;
+      for (let dy = -2; dy <= 2 && !hit; dy++) for (let dx = -2; dx <= 2 && !hit; dx++) {
+        const yy = y + dy, xx = x + dx;
+        if (yy >= 0 && yy < H && xx >= 0 && xx < W && mask[yy * W + xx]) hit = true;
+      }
+      if (!hit) continue;
+      const k = (y * W + x) * 4;
+      px[k] = cr; px[k + 1] = cg; px[k + 2] = cb; px[k + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    return true;
+  }
+
   stack.addEventListener("pointerdown", (e) => {
     e.preventDefault();
+    if (fillMode && color !== "erase") {
+      pushHistory();
+      if (fillAt(at(e))) { dirty = true; scheduleSave(); }
+      else history.pop();
+      $("undo").disabled = history.length === 0;
+      return;
+    }
     pushHistory();
     drawing = true; dirty = true; last = at(e);
     stack.setPointerCapture(e.pointerId);
@@ -510,5 +585,6 @@
 })();
 </script>
 <script src="static/js/tanknav.js"></script>
+<script src="static/js/sitechrome.js"></script>
 </body>
 </html>

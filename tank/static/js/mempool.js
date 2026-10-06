@@ -33,7 +33,8 @@ class MempoolBubble {
     this.x = Math.random() * W;
     this.y = H + Math.random() * 40;
     this.r = txBubbleRadius(tx.value);
-    this.color = txBubbleColor(tx.rate || 1);
+    // a mempool backend sends rate; mempool.space sends fee + vsize only
+    this.color = txBubbleColor(tx.rate || (tx.fee && tx.vsize ? tx.fee / tx.vsize : 1));
     this.speed = 20 + Math.random() * 40;
     this.phase = Math.random() * Math.PI * 2;
     this.alpha = 0.6 + Math.random() * 0.3;

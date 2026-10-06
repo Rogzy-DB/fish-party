@@ -4,72 +4,78 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Add a fish — Fish Party</title>
+<link rel="stylesheet" href="static/ui.css">
 <style>
+  /* Same layout as draw.html (the reference): title bar, the Draw/Photo tabs,
+     a small intro line, then the content, all in one 720px column. */
   :root { color-scheme: dark; }
   * { box-sizing: border-box; margin: 0; }
-  body {
-    font: 16px/1.5 system-ui, sans-serif; color: #dfe9f5;
-    background: linear-gradient(#06182e, #041020 70%, #020a14);
-    min-height: 100vh; display: flex; flex-direction: column;
-    align-items: center; padding: 24px 16px 48px;
-  }
-  h1 { font-size: 1.35rem; margin: 8px 0 2px; }
-  p.sub { color: #8fb0cc; font-size: .92rem; margin-bottom: 22px; text-align: center; }
-  .card {
-    width: 100%; max-width: 460px; background: #0a2038cc;
-    border: 1px solid #1d3a5c; border-radius: 16px; padding: 20px;
-  }
+  body { min-height: 100vh; display: flex; flex-direction: column; font: 16px/1.5 var(--font, system-ui, sans-serif); color: var(--ink); }
+  main.col { width: 100%; max-width: 748px; margin: 0 auto; padding: 0 14px var(--sp-5, 28px); }
+  .topbar { background: transparent; border-bottom-color: var(--line); }
+  .topbar .home { margin-left: auto; }
+  p.sub { color: var(--faint); font-size: var(--fs-1, .9rem); margin-bottom: var(--sp-4, 18px); }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius, 14px); padding: 16px; }
   label.drop {
     display: flex; flex-direction: column; align-items: center; gap: 10px;
-    border: 2px dashed #2c567f; border-radius: 12px; padding: 34px 16px;
-    cursor: pointer; text-align: center; color: #a9c6e2; transition: border-color .2s;
+    border: 2px dashed var(--line); border-radius: var(--radius, 12px); padding: 34px 16px;
+    cursor: pointer; text-align: center; color: var(--faint); transition: border-color .2s;
   }
   label.drop:hover { border-color: #4d8ec4; }
   label.drop .big { font-size: 2.2rem; }
   input[type=file] { display: none; }
   img#preview { max-width: 100%; max-height: 320px; border-radius: 10px; display: none; margin: 14px auto 0; }
-  button {
-    width: 100%; margin-top: 16px; padding: 13px; font-size: 1.05rem;
-    border: 0; border-radius: 10px; background: #1573c4; color: white;
-    cursor: pointer; font-weight: 600;
+  #send {
+    width: 100%; margin-top: 10px; padding: 15px; font-size: 1.1rem;
+    border: 0; border-radius: var(--radius, 12px); background: var(--accent);
+    color: #2a1d00; font-weight: 800; font-family: inherit; cursor: pointer;
   }
-  button:disabled { background: #29425c; color: #7d94ab; cursor: default; }
-  #result { margin-top: 18px; display: none; border-radius: 12px; padding: 16px; text-align: center; }
+  #send:disabled { background: #29425c; color: #7d94ab; cursor: default; }
+  #result { margin-top: 14px; display: none; border-radius: var(--radius, 12px); padding: 16px; text-align: center; }
   #result.ok { display: block; background: #0c3320; border: 1px solid #1e6b42; }
   #result.review { display: block; background: #33290c; border: 1px solid #6b5a1e; }
   #result.err { display: block; background: #33100c; border: 1px solid #6b2a1e; }
   #result .species { font-size: 1.4rem; font-weight: 700; margin: 6px 0; }
-  #result .conf { color: #9db8d2; font-size: .88rem; }
-  a.nav { color: #6fb1e8; font-size: .9rem; margin-top: 26px; }
-  .templates { width: 100%; max-width: 460px; margin-top: 30px; }
-  .templates h2 { font-size: 1rem; font-weight: 600; color: #cfe0f0; margin-bottom: 4px; }
-  .templates p { color: #7f9db8; font-size: .82rem; margin-bottom: 14px; }
-  .tgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  #result .conf { color: var(--faint); font-size: .88rem; }
+  .templates { margin-top: var(--sp-5, 26px); }
+  .templates h2 { font-size: 1rem; font-weight: 700; margin-bottom: 4px; }
+  .templates p { color: var(--faint); font-size: var(--fs-1, .9rem); margin-bottom: var(--sp-3, 12px); }
+  /* the template cards = the draw page's creature cards */
+  .tgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--sp-3, 12px); }
+  @media (min-width: 560px) { .tgrid { grid-template-columns: repeat(4, 1fr); } }
   .tgrid a {
-    display: flex; flex-direction: column; align-items: center; gap: 4px;
-    text-decoration: none; color: #9db8d2; font-size: .68rem;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: var(--radius, 14px); padding: 10px 6px 8px;
+    color: var(--faint); font-size: .72rem; text-decoration: none;
   }
-  .tgrid a img {
-    width: 100%; aspect-ratio: 1; object-fit: contain; background: #fff;
-    border-radius: 8px; padding: 5px; transition: transform .12s;
-  }
-  .tgrid a:hover img { transform: scale(1.06); }
+  .tgrid a:hover { border-color: #4d8ec4; }
+  .tgrid a img { width: 100%; aspect-ratio: 1; object-fit: contain; filter: invert(1); }
+  .links { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; margin-top: var(--sp-5, 26px); }
+  a.nav { color: #6fb1e8; font-size: .9rem; text-decoration: none; }
 </style>
 <script>
   // home = your own party (everything open) · public = the shared tank (owner
   // pages behind a password) · showcase = read-only. serve.py fills this in.
   window.TANK_MODE = "TANK_MODE_PLACEHOLDER";
+  window.SITE_URL = "SITE_URL_PLACEHOLDER";
   document.documentElement.dataset.mode = window.TANK_MODE;
 </script>
 <style>
   [data-mode="public"] .owner-only, [data-mode="showcase"] .owner-only,
   [data-mode="showcase"] .guest-only, [data-mode="home"] .site-only { display: none !important; }
 </style>
+<link rel="stylesheet" href="static/brand.css">
 </head>
 <body>
-  <h1>🐟 Add a fish</h1>
-  <div style="width:100%;max-width:460px"><nav id="tanknav"></nav></div>
-  <p class="sub">Photograph the colored sheet — outline fully in frame,<br>on a light background.</p>
+  <main class="col">
+  <header id="site-head"></header>
+  <div class="topbar">
+    <h1>📷 Send a photo</h1>
+    <a class="home" href="./" title="The tank">🐠</a>
+  </div>
+  <nav id="tanknav"></nav>
+  <p class="sub">Photograph your coloured sheet: the whole outline in the frame, on a light background.</p>
 
   <div class="card">
     <label class="drop" id="drop">
@@ -78,24 +84,28 @@
       <input type="file" id="file" accept="image/*" capture="environment">
     </label>
     <img id="preview" alt="">
-    <button id="send" disabled>Send to the aquarium</button>
+    <button id="send" disabled>Swim! 🐠</button>
     <div id="result"></div>
   </div>
 
   <section class="templates">
     <h2>Need a sheet to colour?</h2>
-    <p>Download &amp; print a blank outline, colour it in, then photograph it above.</p>
+    <p>Download and print a blank outline, colour it in, then photograph it above.</p>
     <div class="tgrid" id="tgrid"></div>
   </section>
 
-  <a class="nav owner-only" href="review">→ review tray</a>
-  <a class="nav" href="./">→ watch the tank</a>
+  <div class="links">
+    <a class="nav owner-only" href="review">→ review tray</a>
+    <a class="nav" href="./">🐠 See the tank</a>
+  </div>
+  <footer id="site-foot"></footer>
+  </main>
 
 <script>
 (() => {
   // the 12 blank templates (ids match recognizer/references/*.png)
   const TEMPLATES = [
-    ["shark", "Shark"], ["whale", "Whale"], ["turtle", "Turtle"],
+    ["shark", "Shark"], ["whale", "Whale"], ["turtle", "Sea turtle"],
     ["manta_ray", "Manta ray"], ["angelfish", "Angelfish"], ["pufferfish", "Pufferfish"],
     ["jellyfish", "Jellyfish"], ["octopus", "Octopus"], ["squid", "Squid"],
     ["seahorse", "Seahorse"], ["crab", "Crab"], ["sea_urchin", "Sea urchin"],
@@ -105,7 +115,8 @@
     const a = document.createElement("a");
     a.href = "templates/" + id + ".png";
     a.download = id + ".png";
-    a.innerHTML = '<img loading="lazy" src="templates/' + id + '.png" alt="' +
+    // thumbnail = the transparent line art (as on the Draw page); the download stays the printable sheet
+    a.innerHTML = '<img loading="lazy" src="static/lineart/' + id + '.png" alt="' +
       label + '"><span>' + label + '</span>';
     grid.appendChild(a);
   }
@@ -157,11 +168,12 @@
       result.className = "err";
       result.textContent = "❌ network error: " + e;
     }
-    send.textContent = "Send to the aquarium";
+    send.textContent = "Swim! 🐠";
     send.disabled = false;
   });
 })();
 </script>
 <script src="static/js/tanknav.js"></script>
+<script src="static/js/sitechrome.js"></script>
 </body>
 </html>

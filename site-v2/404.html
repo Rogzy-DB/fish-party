@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lost at sea — Fish Party</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐠</text></svg>">
+<link rel="stylesheet" href="/style.css">
+<style>
+  /* served at ANY missing path, so every link here is absolute */
+  body { background: linear-gradient(180deg, #072a45 0, #031426 45%, #01070f 100%); min-height: 100vh; }
+  .abyss { text-align: center; padding: 24px 0 8px; }
+  .abyss .code404 { font-size: clamp(4.5rem, 18vw, 10rem); font-weight: 800; line-height: .95; letter-spacing: -.02em; color: var(--sun); margin: 0; }
+  .code404 small { display: block; font-size: .9rem; letter-spacing: .3em; text-transform: uppercase; color: var(--kelp); font-weight: 700; margin-bottom: 6px; }
+  .abyss h1 { font-size: clamp(1.6rem, 5vw, 2.4rem); margin: 10px 0 8px; }
+  .abyss p { color: var(--mist); max-width: 520px; margin: 0 auto; }
+  .sea { position: relative; height: 260px; margin: 18px auto 6px; max-width: 640px; overflow: hidden; }
+  .sea .lost { position: absolute; left: 50%; top: 46%; width: 120px; transform: translate(-50%, -50%); animation: drift 7s ease-in-out infinite; }
+  .sea .ray { position: absolute; inset: 0; background: radial-gradient(60% 55% at 50% 45%, rgba(80,195,247,.16), transparent 70%); }
+  .sea .b { position: absolute; bottom: -12px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.45); animation: rise linear infinite; }
+  .sea .q { position: absolute; left: calc(50% + 52px); top: 22%; font-weight: 800; color: var(--foam); opacity: .8; font-size: 1.6rem; animation: drift 7s ease-in-out infinite; }
+  @keyframes drift { 0%,100% { transform: translate(-50%,-50%) rotate(-4deg); } 50% { transform: translate(-46%,-56%) rotate(5deg); } }
+  @keyframes rise { from { transform: translateY(0); opacity: .9; } to { transform: translateY(-290px); opacity: 0; } }
+  .abyss .ctas { justify-content: center; }
+  @media (prefers-reduced-motion: reduce) { .sea .lost, .sea .b, .sea .q { animation: none; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="brand" href="/">🐠 Fish Party</a>
+    <nav class="tabs">
+      <a href="/">Home</a>
+      <a href="/how/">How it works</a>
+      <a href="/host/">Host</a>
+      <a href="/collective/">Collective tank</a>
+      <a href="/about/">About</a>
+    </nav>
+  </header>
+
+  <main class="abyss">
+    <p class="code404"><small>Error</small>404</p>
+    <div class="sea" aria-hidden="true">
+      <div class="ray"></div>
+      <!-- a little clownfish, ours, drawn here: lost and looking around -->
+      <svg class="lost" viewBox="0 0 120 70">
+        <path d="M100 35 L118 18 L114 35 L118 52 Z" fill="#ff7a1a" stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="round"/>
+        <ellipse cx="58" cy="35" rx="46" ry="26" fill="#ff7a1a" stroke="#1a1a1a" stroke-width="2.5"/>
+        <path d="M36 11 Q44 35 36 59" fill="none" stroke="#fff" stroke-width="9"/>
+        <path d="M66 9 Q74 35 66 61" fill="none" stroke="#fff" stroke-width="9"/>
+        <path d="M90 17 Q96 35 90 53" fill="none" stroke="#fff" stroke-width="7"/>
+        <path d="M50 10 Q60 -2 72 9" fill="#ff7a1a" stroke="#1a1a1a" stroke-width="2.5" stroke-linejoin="round"/>
+        <circle cx="24" cy="30" r="6.5" fill="#fff" stroke="#1a1a1a" stroke-width="2"/>
+        <circle cx="22.5" cy="30" r="3.2" fill="#1a1a1a"/>
+        <path d="M14 42 Q19 39 23 42" fill="none" stroke="#1a1a1a" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="q">?</span>
+      <span class="b" style="left:38%;width:10px;height:10px;animation-duration:6s"></span>
+      <span class="b" style="left:60%;width:6px;height:6px;animation-duration:4.5s;animation-delay:1.2s"></span>
+      <span class="b" style="left:47%;width:14px;height:14px;animation-duration:7.5s;animation-delay:2.5s"></span>
+      <span class="b" style="left:66%;width:8px;height:8px;animation-duration:5.5s;animation-delay:3.4s"></span>
+    </div>
+    <h1>Lost under the ocean</h1>
+    <p>This little fish went looking for the page, and now they're both lost somewhere in the deep. Swim back to the surface:</p>
+    <div class="ctas">
+      <a class="btn primary" href="/">🏠 Back home</a>
+      <a class="btn ghost" href="/collective/">🌊 The collective tank</a>
+    </div>
+  </main>
+
+  <footer class="end">
+    <div class="fish-line">🐟 🐠 🦈 🐙 🐡</div>
+    <nav class="foot-links"><a href="/how/">How it works</a> · <a href="/host/">Host your own</a> · <a href="/collective/">Collective tank</a> · <a href="/about/">About</a> · <a href="https://github.com/Rogzy-DB/fish-party">GitHub</a></nav>
+    Made by Rogzy &amp; Luna
+  </footer>
+
+</div>
+</body>
+</html>

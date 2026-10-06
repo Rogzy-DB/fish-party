@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The collective tank — Fish Party</title>
+<meta name="description" content="One giant aquarium drawn by everyone: paint a fish on your phone or send a photo of a coloured template, and it swims with every other visitor's.">
+<meta property="og:title" content="The Fish Party collective tank">
+<meta property="og:image" content="../img/tank.jpg">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐠</text></svg>">
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="brand" href="../">🐠 Fish Party</a>
+    <nav class="tabs">
+      <a href="../">Home</a>
+      <a href="../how/">How it works</a>
+      <a href="../host/">Host</a>
+      <a href="./" aria-current="page">Collective tank</a>
+      <a href="../about/">About</a>
+    </nav>
+  </header>
+
+  <section style="padding-top:20px">
+    <div class="commons">
+      <div>
+        <div class="kicker">The collective tank</div>
+        <h2>One giant aquarium, drawn by everyone</h2>
+        <div class="counter"><span id="count">…</span><small>fish swimming right now</small></div>
+      </div>
+      <div>
+        <p class="intro" style="margin-bottom:14px">Add a fish from anywhere in the world. It joins every other visitor's creature in the same water.</p>
+        <ul>
+          <li>Paint on your phone, or upload a photo of a coloured <a href="../host/#setup">template</a>.</li>
+          <li>Give it a name if you like (no real names of kids, please).</li>
+          <li>A human keeper takes a quick look at each new fish before it swims, so check back later today.</li>
+        </ul>
+        <div class="ctas">
+          <a class="btn primary" href="../tank/draw">✏️ Draw a fish</a>
+          <a class="btn ghost" href="../tank/upload">📷 Send a photo</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:36px">
+    <div class="window">
+      <iframe src="../tank/?embed" title="The collective tank, live" loading="lazy" allow="autoplay"></iframe>
+      <a class="tag" href="../tank/"><b>Live:</b> open the collective tank full screen ↗</a>
+    </div>
+  </section>
+
+  <footer class="end">
+    <div class="fish-line">🐟 🐠 🦈 🐙 🐡</div>
+    <nav class="foot-links"><a href="../how/">How it works</a> · <a href="../host/">Host your own</a> · <a href="../collective/">Collective tank</a> · <a href="../about/">About</a> · <a href="https://github.com/Rogzy-DB/fish-party">GitHub</a></nav>
+    Inspired by <a href="https://futurepark.teamlab.art/en/playinstallations/sketch_aquarium/">teamLab's Sketch Aquarium</a>: go see the real one if you ever can.<br>
+    Code under the MIT licence · party drawings under CC BY-NC 4.0 · bubbles from <a href="https://mempool.space">mempool.space</a>.<br>
+    Made by Rogzy &amp; Luna
+  </footer>
+
+</div>
+<script>
+  fetch("../tank/api/fish/manifest", { cache: "no-store" })
+    .then(r => r.json())
+    .then(list => {
+      const n = list.length;
+      document.getElementById("count").textContent = n;
+      if (!n) document.querySelector(".counter small").textContent = "fish so far: yours could be the first!";
+    })
+    .catch(() => { document.getElementById("count").textContent = "–"; });
+</script>
+</body>
+</html>
