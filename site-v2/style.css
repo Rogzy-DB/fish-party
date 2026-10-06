@@ -229,7 +229,8 @@ ol.timeline > li.with-media { display: grid; grid-template-columns: 1fr; gap: 16
 .media.flow .arrow { font-size: 1.6rem; color: var(--sun); font-weight: 800; }
 .media .water { aspect-ratio: 1; border-radius: 12px; overflow: hidden; display: flex; align-items: center; justify-content: center;
   background: linear-gradient(180deg, #1b6f7a, #0f4f60 60%, #0a3346); box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-.media .water .swim { width: 78%; animation: swim 3.2s ease-in-out infinite; }
+.media .water { position: relative; }
+.media .water .swim { position: absolute; left: 11%; top: 14%; width: 78%; animation: swim 3.2s ease-in-out infinite; }  /* absolute: it drifts on purpose */
 @keyframes swim { 0%,100% { transform: translate(-6%, 3%) rotate(-5deg); } 50% { transform: translate(6%, -4%) rotate(4deg); } }
 .slides { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,.35); background: #0f4f60; }
 .slides img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; animation: slide 9s infinite; }
