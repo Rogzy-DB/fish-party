@@ -198,8 +198,11 @@ ol.guide > li, .two > *, .steps > *, .sources > * { min-width: 0; }
 /* phone: the five tabs on one line */
 @media (max-width: 560px) {
   nav.tabs { flex-wrap: nowrap; gap: 0; overflow-x: auto; scrollbar-width: none; }
-  nav.tabs a { font-size: .8rem; padding: 6px 6px; }
+  nav.tabs a { font-size: .78rem; padding: 6px 5px; }
+  /* iPhone 390 px: the -14px pull + the last tab = "Abo" cut off (audit 07/10) */
+  nav.tabs { margin-left: -6px; margin-right: -6px; width: auto; justify-content: space-between; }
 }
+@media (max-width: 380px) { nav.tabs a { font-size: .72rem; padding: 6px 3px; } }
 
 /* How it works: the steps as one line down the left */
 ol.timeline { list-style: none; counter-reset: t; margin: 22px 0 0; padding: 0; position: relative; }

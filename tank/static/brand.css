@@ -51,8 +51,11 @@ button.primary:not(:disabled), #send:not(:disabled), .go:not(:disabled) { color:
 #pick.screen { max-width: none; padding-left: max(14px, calc((100% - 720px) / 2)); padding-right: max(14px, calc((100% - 720px) / 2)); }
 @media (max-width: 560px) {
   .site-tabs { flex-wrap: nowrap; gap: 0; overflow-x: auto; scrollbar-width: none; }
-  .site-tabs a { font-size: .8rem; padding: 6px 6px; }
+  .site-tabs a { font-size: .78rem; padding: 6px 5px; }
+  /* iPhone 390 px: the last tab was cut to "Abo" (audit 07/10) */
+  .site-tabs { margin-left: -6px; margin-right: -6px; width: auto; justify-content: space-between; }
 }
+@media (max-width: 380px) { .site-tabs a { font-size: .72rem; padding: 6px 3px; } }
 .site-foot a { display: inline-block; padding: 6px 0; }
 .resume .nav, a.nav { display: inline-block; padding: 8px 4px; }
 /* draw page on a real phone: the paint screen may scroll if the keyboard eats it */
