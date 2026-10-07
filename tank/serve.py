@@ -595,6 +595,10 @@ class Handler(BaseHTTPRequestHandler):
             data = data.replace(b"MEMPOOL_API_PLACEHOLDER", origin.encode())
         if fs.endswith("index.html"):
             data = data.replace(b"<!--AMBIENT_SOURCES-->", ambient_sources().encode())
+            # showcase has no /draw nor /settings: CSS hid these links but a crawler
+            # still followed them into a 404 (mobile audit 07/10), so drop them here
+            if MODE == "showcase":
+                data = re.sub(rb"<!--NOT_SHOWCASE-->.*?<!--/NOT_SHOWCASE-->", b"", data, flags=re.S)
         if fs.endswith(".html"):
             data = data.replace(b"TANK_MODE_PLACEHOLDER", MODE.encode())
             data = data.replace(b"SITE_URL_PLACEHOLDER", SITE_URL.encode())

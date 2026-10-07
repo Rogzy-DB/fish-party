@@ -147,6 +147,9 @@ class PublicMode(unittest.TestCase):
     def tearDown(self):
         self.t.close()
 
+    def test_visitor_keeps_the_add_fish_link(self):
+        self.assertIn(b'href="draw"', self.t.req("/")[1])
+
     def test_owner_pages_need_password(self):
         for p in ("/settings", "/review", "/api/review/pending", "/api/fish/catalog"):
             code, _ = self.t.req(p)
@@ -217,6 +220,11 @@ class ShowcaseMode(unittest.TestCase):
         self.assertEqual(self.t.req("/api/settings", data=b"{}", auth=True)[0], 403)
         for p in ("/draw", "/upload", "/review", "/settings"):
             self.assertEqual(self.t.req(p, auth=True)[0], 404, p)
+
+    def test_no_link_to_pages_it_does_not_have(self):
+        body = self.t.req("/")[1]
+        self.assertNotIn(b'href="draw"', body)
+        self.assertNotIn(b'href="settings"', body)
 
     def test_fish_swim(self):
         self.assertEqual(len(self.t.json("/api/fish/manifest")[1]), 1)
